@@ -1,0 +1,3505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- إعدادات تطبيق الويب PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>نظام تسجيل الغياب الذكي - النسخة التحليلية</title>
+    <style>
+        /* From Uiverse.io by ammarsaa */
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            padding: 20px;
+            border-radius: 20px;
+            position: relative;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: 1px solid #333;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-right: 30px;
+            color: #00bfff;
+            margin-top: 0;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .form-title::before {
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-title::after {
+            width: 18px;
+            height: 18px;
+            animation: pulse 1s linear infinite;
+        }
+
+        .form-title::before,
+        .form-title::after {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            right: 0px;
+            background-color: #00bfff;
+        }
+
+        .message,
+        .signin {
+            font-size: 1.05rem; /* Enhanced text clarity */
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .signin {
+            text-align: center;
+        }
+
+        .signin a:hover {
+            text-decoration: underline royalblue;
+        }
+
+        .signin a {
+            color: #00bfff;
+        }
+
+        .flex {
+            display: flex;
+            width: 100%;
+            gap: 6px;
+        }
+
+        .form label {
+            position: relative;
+        }
+
+        .form label .input {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            padding: 20px 10px 05px 05px;
+            outline: 0;
+            border: 1px solid rgba(105, 105, 105, 0.397);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1.05rem; /* Increased for better legibility */
+            font-weight: 500;
+        }
+
+        .form label .input+span {
+            color: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            right: 10px;
+            top: 0px;
+            font-size: 0.9em;
+            cursor: text;
+            transition: 0.3s ease;
+        }
+
+        .form label .input:placeholder-shown+span {
+            top: 12.5px;
+            font-size: 0.9em;
+        }
+
+        .form label .input:focus+span,
+        .form label .input:valid+span {
+            color: #00bfff;
+            top: 0px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .form-submit {
+            border: none;
+            outline: none;
+            padding: 10px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            transition: .3s ease;
+            background-color: #00bfff;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #00bfff96;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --whatsapp: #25D366;
+            --glass: rgba(255, 255, 255, 0.85);
+        }
+
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Modified to allow safe scrolling on long content */
+            padding: 20px 20px 120px 20px;
+            box-sizing: border-box;
+            color: #1f2937;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #fae8ff 100%);
+            position: relative;
+        }
+
+        /* كانفاس الخلفية التفاعلية */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            /* للسماح بالنقر على العناصر فوقه */
+        }
+
+        /* تنسيق زر القائمة */
+        .menu-container {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1001;
+            background: var(--primary);
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        #checkbox {
+            display: none;
+        }
+
+        .toggle {
+            position: relative;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition-duration: .3s;
+        }
+
+        .bars {
+            width: 100%;
+            height: 4px;
+            background-color: rgb(253, 255, 243);
+            border-radius: 5px;
+            transition-duration: .3s;
+        }
+
+        #checkbox:checked+.toggle #bar2 {
+            transform: translateY(12px) rotate(60deg);
+            margin-left: 0;
+            transform-origin: right;
+            transition-duration: .3s;
+            z-index: 2;
+        }
+
+        #checkbox:checked+.toggle #bar1 {
+            transform: translateY(24px) rotate(-60deg);
+            transition-duration: .3s;
+            transform-origin: left;
+            z-index: 1;
+        }
+
+        #checkbox:checked+.toggle {
+            transform: rotate(-90deg);
+        }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 280px;
+            height: 100%;
+            background: white;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding: 100px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .side-menu.open {
+            right: 0;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-item {
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4338ca;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: 0.3s;
+        }
+
+        .menu-item:hover {
+            transform: scale(1.02);
+            background: #eff6ff;
+        }
+
+        .problem-btn {
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
+            border-color: #fecaca !important;
+        }
+
+        .whatsapp-btn {
+            background: #e8f5e9 !important;
+            color: #2e7d32 !important;
+            border-color: #c8e6c9 !important;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .smooth-appear {
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 900px;
+            margin: 90px auto 20px auto; /* Added top margin to prevent overlapping with top buttons */
+            padding: 40px;
+            border-radius: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 255, 255, 0.5) inset;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 20px 120px 20px;
+                border-radius: 20px;
+                margin-top: 100px !important;
+            }
+            .grid {
+                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100%;
+            }
+            .card {
+                width: 100%;
+                box-sizing: border-box;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 60px;
+            }
+        }
+
+        h2,
+        h3 {
+            text-align: center;
+            color: #312e81;
+            font-weight: 800;
+            margin-bottom: 25px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: center;
+            border-radius: 18px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4338ca;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .card:active {
+            transform: scale(0.96);
+        }
+
+        .selected {
+            background: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary) !important;
+        }
+
+        .completed {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+            opacity: 0.8;
+            position: relative;
+        }
+
+        .completed::after {
+            content: "🔒 مغلق";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 10px;
+            background: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* --- الأزرار الحديثة والناعمة --- */
+        .btn-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .submit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: transparent;
+            border: none;
+            padding: 15px 30px;
+            width: fit-content;
+            min-width: 180px;
+            height: auto;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .submit::after {
+            content: attr(data-text);
+            position: absolute;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .submit::before {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .submit:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.6);
+        }
+        
+        .submit:hover::before {
+            left: 100%;
+        }
+
+        .submit:active {
+            transform: scale(0.97);
+        }
+
+        /* أزرار الرجوع العادية */
+        .btn-normal {
+            background: rgba(100, 116, 139, 0.1);
+            color: #475569;
+            border: 2px solid transparent;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            width: fit-content;
+            margin: auto;
+            margin-top: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-normal:hover {
+            background: #64748b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(100, 116, 139, 0.2);
+        }
+
+        /* مدخلات الرمز */
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .code-inputs input {
+            width: 55px;
+            height: 60px;
+            font-size: 26px;
+            text-align: center;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            transition: 0.3s;
+        }
+
+        /* قسم الإحصائيات */
+        #statsDashboard {
+            display: none;
+            width: 100%;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-desc {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .progress-container {
+            background: #f1f5f9;
+            height: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: 0.6s ease-in-out;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-table th {
+            background: #f8fafc;
+            padding: 15px;
+            color: #475569;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .stats-table td {
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .top-absent {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        /* الأقنعة (Modals) */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 10001;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* --- Flappy Bird Loader CSS --- */
+        .loader {
+            position: relative;
+            width: 15rem;
+            /* تم تصغير العرض قليلاً ليناسب الجوال */
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 50%;
+            background: linear-gradient(to bottom, #6ccee7 60%, white);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 5px solid white;
+        }
+
+        #bird {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-80%, -50%);
+            width: 3rem;
+            height: auto;
+            animation: flap 500ms linear infinite;
+            z-index: 5;
+        }
+
+        .flappyBirdScene,
+        .flappyBirdSceneBottom {
+            display: flex;
+            width: 20rem;
+            top: -23%;
+            position: relative;
+        }
+
+        .sceneTop {
+            display: flex;
+            width: fit-content;
+            animation: flow 5s linear infinite;
+        }
+
+        .sceneBottom {
+            display: flex;
+            width: fit-content;
+            animation: flowBottom 5s linear infinite;
+        }
+
+        #birdObstacle {
+            height: 8rem;
+            width: 2rem;
+            background: linear-gradient(to right,
+                    #9de558 0px, #9de558 3px, #e7ff8d 3px, #e7ff8d 5px,
+                    #9de858 5px, #9de858 10px, #74c029 10px, #74c029 13px,
+                    #9de558 13px, #9de558 15px, #74c029 22px, #74c029 28px,
+                    #59811a 28px, #59811a 100%);
+            border: 2px solid #59811a;
+            position: relative;
+        }
+
+        .flappyBirdSceneBottom {
+            bottom: -25%;
+            left: 0;
+        }
+
+        #birdObstacle::after {
+            content: "";
+            position: absolute;
+            width: 135%;
+            height: 1.25rem;
+            top: 100%;
+            left: 50%;
+            border: 2px solid #59811a;
+            transform: translate(-50%, 0);
+            background: linear-gradient(to right,
+                    #9de558 0px, #9de558 3px, #e7ff8d 3px, #e7ff8d 5px,
+                    #9de858 5px, #9de858 10px, #74c029 10px, #74c029 13px,
+                    #9de558 13px, #9de558 15px, #74c029 22px, #74c029 28px,
+                    #59811a 28px, #59811a 100%);
+        }
+
+        .birdObs2 {
+            transform: translate(0%, 15%);
+            left: 15%;
+        }
+
+        .birdObs3 {
+            transform: translate(0, 18%);
+            left: 30%;
+        }
+
+        .birdObs4 {
+            transform: translate(0, 15%);
+            left: 45%;
+        }
+
+        @keyframes flap {
+            from {
+                transform: translate(-80%, -50%);
+            }
+
+            25% {
+                transform: translate(-80%, -50%) rotate(-15deg);
+            }
+
+            50% {
+                transform: translate(-80%, -12%) rotate(5deg);
+            }
+
+            100% {
+                transform: translate(-80%, -50%);
+            }
+        }
+
+        @keyframes flow {
+            from {
+                transform: translate(0, -43%);
+            }
+
+            to {
+                transform: translate(-50%, -43%);
+            }
+        }
+
+        @keyframes flowBottom {
+            from {
+                transform: translate(0, 75%) rotateX(180deg);
+            }
+
+            to {
+                transform: translate(-50%, 75%) rotateX(180deg);
+            }
+        }
+
+
+        /* --- Theme Switcher CSS --- */
+        .theme-silver {
+            --primary: #64748b;
+            --secondary: #94a3b8;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+            background-size: 400% 400%;
+        }
+
+        .theme-gold {
+            --primary: #d97706;
+            --secondary: #f59e0b;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+            background-size: 400% 400%;
+        }
+
+        .theme-platinum {
+            --primary: #4f46e5;
+            --secondary: #7c3aed;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #fae8ff 100%);
+            background-size: 400% 400%;
+        }
+
+        .glass-radio-group {
+            --bg: rgba(255, 255, 255, 0.4);
+            --text: #475569;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg);
+            border-radius: 1rem;
+            backdrop-filter: blur(12px);
+            box-shadow:
+                inset 1px 1px 4px rgba(255, 255, 255, 0.5),
+                inset -1px -1px 6px rgba(0, 0, 0, 0.1),
+                0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: fit-content;
+            margin: 15px auto;
+        }
+
+        .glass-radio-group input {
+            display: none;
+        }
+
+        .glass-radio-group label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            font-size: 14px;
+            padding: 0.8rem 1.6rem;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            color: var(--text);
+            position: relative;
+            z-index: 2;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .glass-radio-group label:hover {
+            color: #0f172a;
+        }
+
+        .glass-radio-group input:checked+label {
+            color: #000;
+        }
+
+        .glass-glider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            height: calc(100% / 3);
+            width: 100%;
+            border-radius: 1rem;
+            z-index: 1;
+            transition: transform 0.5s cubic-bezier(0.37, 1.95, 0.66, 0.56),
+                background 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+        }
+
+        /* Silver */
+        #glass-silver:checked~.glass-glider {
+            transform: translateY(0%);
+            background: linear-gradient(135deg, #c0c0c088, #e0e0e0);
+            box-shadow: 0 0 18px rgba(192, 192, 192, 0.5), 0 0 10px rgba(255, 255, 255, 0.4) inset;
+        }
+
+        /* Gold */
+        #glass-gold:checked~.glass-glider {
+            transform: translateY(100%);
+            background: linear-gradient(135deg, #ffd70088, #ffcc00);
+            box-shadow: 0 0 18px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 235, 150, 0.4) inset;
+        }
+
+        /* Platinum */
+        #glass-platinum:checked~.glass-glider {
+            transform: translateY(200%);
+            background: linear-gradient(135deg, #d0e7ff88, #a0d8ff);
+            box-shadow: 0 0 18px rgba(160, 216, 255, 0.5), 0 0 10px rgba(200, 240, 255, 0.4) inset;
+        }
+
+        /* --- استعلامات الوسائط (Responsive Media Queries) لدعم جميع الأجهزة --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 0;
+                width: 100%;
+                margin: 0;
+                min-height: 100vh;
+                border: none;
+            }
+            .form {
+                max-width: 100%;
+                width: 100%;
+                padding: 15px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 10px;
+            }
+            .card {
+                padding: 15px;
+                font-size: 1.05rem !important; /* Enhanced readability on mobile */
+            }
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+            .stats-table th, .stats-table td {
+                padding: 10px;
+                font-size: 1rem;
+            }
+            .modal-card {
+                width: 90%;
+                padding: 20px;
+            }
+            .side-menu {
+                width: 250px;
+                right: -250px;
+                padding: 80px 15px 20px;
+            }
+            .menu-container {
+                top: 15px;
+                right: 15px;
+                padding: 8px;
+            }
+            .toggle {
+                width: 30px;
+                height: 30px;
+            }
+            h2 {
+                font-size: 1.75rem !important;
+            }
+            h3 {
+                font-size: 1.5rem !important;
+            }
+            .code-inputs input {
+                width: 45px;
+                height: 50px;
+                font-size: 20px;
+                gap: 8px;
+            }
+            .submit {
+                width: 100%;
+                max-width: 250px;
+            }
+            .stats-table {
+                font-size: 13px;
+            }
+            #teacherFullName, #teacherSubject {
+                font-size: 14px;
+                padding: 10px;
+            }
+            /* تصغير حجم اللودر على الشاشات الصغيرة */
+            .loader {
+                width: 12rem;
+            }
+            .flappyBirdScene, .flappyBirdSceneBottom {
+                width: 15rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            }
+            .glass-radio-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            .card {
+                font-size: 13px;
+                padding: 12px;
+            }
+            .stats-table th, .stats-table td {
+                padding: 5px;
+                font-size: 12px;
+            }
+        }
+        
+        /* تنسيقات المحادثة */
+        .chat-widget {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 10000;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+        @media (max-width: 768px) {
+            .chat-widget {
+                width: calc(100% - 40px);
+                bottom: 50px;
+                right: 20px;
+            }
+        }
+        .chat-header {
+            background: var(--primary, #4f46e5);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            display: none;
+            flex-direction: column;
+            height: 350px;
+            background: #f8fafc;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        .msg-mine {
+            background: var(--primary, #4f46e5);
+            color: white;
+            align-self: flex-start;
+            border-bottom-right-radius: 0;
+        }
+        .msg-other {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            align-self: flex-end;
+            border-bottom-left-radius: 0;
+        }
+        .msg-sender {
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            font-weight: bold;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+        .chat-input-area button {
+            background: var(--primary, #4f46e5);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            margin-right: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .chat-msg-actions span:hover {
+            opacity: 1 !important;
+            text-decoration: underline;
+        }
+        .unread-badge {
+            background: #ef4444;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        /* تأثيرات التحويم لزر اختيار الجهاز */
+        .device-btn {
+            background: #555; 
+            color: white; 
+            border-radius: 15px; 
+            padding: 15px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+        .device-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* تخصيصات الأجهزة المختلفة */
+        body.device-ios {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body.device-ios .container {
+            border-radius: 40px; /* زوايا اكثر استدارة لتناسب لغة تصميم ابل */
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        body.device-ios .btn-normal, body.device-ios .submit {
+            border-radius: 20px;
+        }
+        
+        body.device-android {
+            font-family: Roboto, sans-serif;
+        }
+        body.device-android .container {
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        body.device-android .submit, body.device-android .btn-normal {
+            border-radius: 12px;
+        }
+        
+        body.device-windows {
+            font-family: "Segoe UI", sans-serif;
+        }
+        body.device-windows .container {
+            border-radius: 8px; /* تصميم Fluent/Metro */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        body.device-windows .submit, body.device-windows .btn-normal {
+            border-radius: 4px; /* زوايا حادة اكثر */
+        }
+        
+        body.device-mac {
+            font-family: "San Francisco", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        body.device-mac .container {
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+        }
+        body.device-mac .submit, body.device-mac .btn-normal {
+            border-radius: 8px;
+        }
+    </style>
+
+    <!-- Google Fonts: Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- 360 Degree Redesign: Dark Glassmorphism -->
+    <style id="dark-glass-override">
+        /* Core Dark Variables */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --text-main: #ffffff; /* Brighter for peak contrast */
+            --text-muted: #e2e8f0; /* Crisp color for readable secondary text */
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15); /* Sharper border definition */
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            
+            /* Themes Redefined */
+            --primary: #00f2fe; /* default neon cyan */
+            --secondary: #4facfe;
+        }
+        
+        body.theme-silver {
+            --primary: #cbd5e1;
+            --secondary: #94a3b8;
+            background: radial-gradient(circle at top left, #1e293b, #020617) !important;
+        }
+        body.theme-gold {
+            --primary: #fbbf24;
+            --secondary: #d97706;
+            background: radial-gradient(circle at top right, #382c0b, #020617) !important;
+        }
+        body.theme-platinum {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            background: radial-gradient(circle at center, #0b253b, #020617) !important;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif !important;
+            background: radial-gradient(circle at center, #0b253b, #020617) !important; /* Default dark */
+            color: var(--text-main) !important;
+        }
+
+        /* Glassmorphism Classes */
+        .container {
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: var(--glass-shadow), 0 0 40px rgba(0, 242, 254, 0.03) inset !important;
+            border-radius: 24px !important;
+        }
+
+        h2, h3, .form-title {
+            color: var(--text-main) !important;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-family: 'Tajawal', sans-serif !important;
+        }
+        
+        /* Modals and Forms */
+        .form {
+            background-color: rgba(2, 6, 23, 0.5) !important;
+            border: 1px solid var(--glass-border) !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+        .form label .input, .code-inputs input, select, input[type="text"], input[type="password"], input[type="email"], textarea {
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: var(--text-main) !important;
+            font-family: 'Tajawal', sans-serif !important;
+            font-size: 1.05rem !important; /* Uniform distinct sizing for all controls */
+        }
+        .form label .input:focus, .code-inputs input:focus, select:focus, input:focus, textarea:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2) !important;
+            outline: none;
+        }
+        .form label .input:focus+span, .form label .input:valid+span {
+            color: var(--primary) !important;
+        }
+
+        /* Cards and Elements Grid */
+        .card {
+            background: rgba(30, 41, 59, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: var(--text-main) !important;
+            backdrop-filter: blur(8px) !important;
+            font-family: 'Tajawal', sans-serif !important;
+            font-size: 1.1rem !important; /* Extra visible text on cards */
+            font-weight: 700 !important;
+        }
+        .card:hover {
+            border-color: var(--primary) !important;
+            background: rgba(30, 41, 59, 0.8) !important;
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.15) !important;
+        }
+        .card.selected {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            color: #020617 !important; 
+            border: none !important;
+            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.4) !important;
+            font-weight: 800 !important;
+        }
+        .completed {
+            background: rgba(59, 7, 100, 0.6) !important; /* Dark Purple for Completed */
+            border-color: #6b21a8 !important;
+            color: #d8b4fe !important;
+            opacity: 0.9 !important;
+        }
+        .completed::after {
+            background: #7e22ce !important;
+        }
+
+        /* Buttons Update */
+        .submit {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            color: transparent !important; /* Custom trick used in original code */
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3) !important;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+        .submit::after { color: #020617 !important; font-weight: 800 !important; }
+        .submit:hover {
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.5) !important;
+            transform: translateY(-3px) scale(1.02) !important;
+        }
+        .btn-normal {
+            background: rgba(30, 41, 59, 0.6) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--glass-border) !important;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+        .btn-normal:hover {
+            background: rgba(51, 65, 85, 0.8) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Sidebar Styling */
+        .side-menu {
+            background: rgba(15, 23, 42, 0.85) !important;
+            backdrop-filter: blur(25px) !important;
+            border-left: 1px solid var(--glass-border) !important;
+        }
+        .menu-item {
+            background: rgba(30, 41, 59, 0.5) !important;
+            border: 1px solid var(--glass-border) !important;
+            color: var(--text-main) !important;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+        .menu-item:hover {
+            background: rgba(51, 65, 85, 0.8) !important;
+            border-color: var(--primary) !important;
+            color: var(--primary) !important;
+            box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.1) !important;
+        }
+
+        /* Modals and Overlays */
+        .overlay, .loading-overlay {
+            background: rgba(2, 6, 23, 0.85) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+        .modal-card {
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--glass-border) !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+        }
+
+        /* Chat Widget Update */
+        .chat-widget {
+            background: var(--glass-bg) !important;
+            border: 1px solid var(--glass-border) !important;
+            backdrop-filter: blur(16px) !important;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            color: #020617 !important;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+        .chat-body { background: rgba(15, 23, 42, 0.6) !important; }
+        .msg-mine { background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; color: #020617 !important; }
+        .msg-other { background: rgba(30, 41, 59, 0.8) !important; color: var(--text-main) !important; border: 1px solid var(--glass-border) !important; }
+        .chat-input-area { background: rgba(15, 23, 42, 0.8) !important; border-top: 1px solid var(--glass-border) !important; }
+        .chat-input-area button { background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; color: #020617 !important; border: none !important; font-family: 'Tajawal', sans-serif !important;}
+
+        /* General Adjustments */
+        p, label { color: var(--text-muted) !important; font-size: 1.1rem !important; font-weight: 500 !important; line-height: 1.6; }
+        .stat-card, .stats-table { background: rgba(30, 41, 59, 0.4) !important; border-color: var(--glass-border) !important; }
+        .stat-number { color: var(--primary) !important; text-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        .stats-table th { background: rgba(15, 23, 42, 0.8) !important; color: var(--text-main) !important; border-bottom: 1px solid var(--glass-border); }
+        .stats-table td { border-top-color: rgba(255, 255, 255, 0.05) !important; color: var(--text-main) !important; }
+
+        /* The Gliders for theme switcher */
+        .glass-radio-group { --bg: rgba(30, 41, 59, 0.6) !important; --text: var(--text-muted) !important; }
+        .glass-radio-group label:hover { color: var(--text-main) !important; }
+        .glass-radio-group input:checked+label { color: #020617 !important; text-shadow: none; }
+        .glass-glider {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            box-shadow: 0 0 15px var(--primary) !important;
+        }
+
+        /* Make disabled items look stylish */
+        input[readonly], select:disabled, #teacherSubject, #logoutName, #logoutSubject, #logoutEmail, #logoutPassword {
+           background-color: rgba(15, 23, 42, 0.3) !important;
+           color: #64748b !important;
+           cursor: not-allowed;
+           border-color: rgba(255,255,255,0.05) !important;
+        }
+        
+        .whatsapp-btn {
+            background: rgba(37, 211, 102, 0.2) !important;
+            border-color: var(--whatsapp) !important;
+            color: var(--whatsapp) !important;
+        }
+        .problem-btn {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--danger) !important;
+            color: var(--danger) !important;
+        }
+        
+        /* Fix the Loader Box */
+        .loader {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2) !important;
+        }
+        
+        /* Toggle Bars */
+        .bars { background-color: var(--text-main) !important; }
+
+        /* Star Rating UI */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+            direction: ltr;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            font-size: 40px !important;
+            color: rgba(255, 255, 255, 0.2) !important;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffd700 !important;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5) !important;
+        }
+        .star-rating label:active {
+            transform: scale(0.9);
+        }
+    </style>
+    
+    <!-- إضافة مكتبات Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body>
+
+    <!-- خلفية الجسيمات التفاعلية -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="menu-container">
+        <input type="checkbox" id="checkbox" onchange="toggleMenu()">
+        <label class="toggle" for="checkbox">
+            <div id="bar1" class="bars"></div>
+            <div id="bar2" class="bars"></div>
+            <div id="bar3" class="bars"></div>
+        </label>
+    </div>
+
+    <!-- زر استكمال البيانات (مخفي افتراضياً) -->
+    <div class="complete-data-container" id="completeDataBtn" style="display:none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--primary); padding: 10px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; color: white; font-weight: bold; font-size: 14px; transition: 0.3s;" onclick="openCompleteDataModal()">
+        استكمال البيانات
+    </div>
+
+    <!-- الزر المخفي للإحصائيات (أسفل يسار الشاشة) -->
+    <div id="hiddenStatsBtn"
+        style="position: fixed; bottom: 40px; left: 0; width: 40px; height: 40px; z-index: 9999; cursor: default; background: transparent;">
+    </div>
+
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-item" onclick="location.reload()">🔄 تحديث الصفحة</div>
+        <div class="menu-item" id="installPwaBtn" style="display:none; background:#dbeafe; color:#1e40af;">📱 تثبيت التطبيق</div>
+        <a href="app.apk" download style="text-decoration:none; display:block;">
+            <div class="menu-item" style="background:#d1fae5; color:#065f46;">📥 تحميل تطبيق الأندرويد</div>
+        </a>
+        <div class="menu-item" onclick="openTeacherAbsenceRecord()" style="background:#f0fdf4; color:#166534;">📝 سجل
+            غياب المعلم وتعديله</div>
+        <div class="menu-item"
+            onclick="openRatingModal()">
+            🌟 إرسال اقتراح أو تقييم</div>
+        <div class="menu-item whatsapp-btn" onclick="window.open('https://wa.me/97366650752', '_blank')">💬 تواصل مع
+            المؤسس (واتساب)</div>
+        <div class="menu-item problem-btn"
+            onclick="openReportProblemModal()">⚠️ لدي مشكلة</div>
+        <div class="menu-item info-btn" onclick="openAboutModal()">📄 نبذة عن النظام</div>
+        <div class="menu-item" onclick="openResetModal()" style="background:#fff7ed; color:#ea580c;">⚙️ ضبط المصنع</div>
+
+        <!-- قسم تغيير المظهر -->
+        <div style="text-align: center; margin-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 10px; font-weight: bold;">مظهر النظام</p>
+            <div class="glass-radio-group">
+                <input type="radio" id="glass-silver" name="theme" value="silver">
+                <label for="glass-silver">الفضي (Silver)</label>
+
+                <input type="radio" id="glass-gold" name="theme" value="gold">
+                <label for="glass-gold">الذهبي (Gold)</label>
+
+                <input type="radio" id="glass-platinum" name="theme" value="platinum" checked>
+                <label for="glass-platinum">البلاتيني (Platinum)</label>
+
+                <div class="glass-glider"></div>
+            </div>
+        </div>
+
+        <div class="menu-item" onclick="forceCloseMenu()"
+            style="background:#f1f5f9; color:#64748b; border:none; margin-top: auto;">✖ إغلاق القائمة</div>
+    </div>
+
+    <div class="container">
+        <div id="login" style="display: flex; justify-content: center; width: 100%;">
+            <form class="form" id="customLoginForm" onsubmit="handleCustomLogin(event)">
+                <p class="form-title" id="systemTitle">تسجيل الدخول</p>
+                <p class="message" style="text-align:right;">نظام الغياب الذكي - الرجاء تسجيل الدخول للمتابعة</p>
+                <label>
+                    <input required="" placeholder=" " type="email" class="input" id="loginEmail" dir="ltr"
+                        style="text-align: left;">
+                    <span>البريد الإلكتروني</span>
+                </label>
+                <label>
+                    <input required="" placeholder=" " type="password" class="input" id="loginPassword" dir="ltr"
+                        style="text-align: left;">
+                    <span>كلمة المرور</span>
+                </label>
+                <button class="form-submit" type="submit" style="width: 100%; margin-top: 10px;">دخول</button>
+            </form>
+        </div>
+
+        <div id="returningTeacherWelcome" style="display:none; text-align: center;">
+            <h2 id="returningWelcomeMsg" style="margin-bottom: 20px;"></h2>
+            <p style="color:#64748b; margin-bottom: 30px;">مرحباً بك مجدداً في نظام الغياب الذكي</p>
+            <div class="btn-wrapper">
+                <button class="submit" id="startAbsenceBtn" data-text="ابدأ تسجيل الغياب">RECORD ABSENCE</button>
+            </div>
+            <p style="margin-top:20px; font-size:12px; color:#94a3b8; cursor:pointer; text-decoration:underline;"
+                onclick="logoutTeacher()">تسجيل الخروج (تغيير الحساب)</p>
+        </div>
+
+        <div id="teacherInfoSetup" style="display:none;">
+            <h2>📝 بيانات المعلم</h2>
+            <p style="text-align:center; color:#64748b; margin-bottom:20px;">الرجاء إدخال بياناتك للمتابعة</p>
+
+            <label>المعلم:</label>
+            <select id="teacherFullName" required onchange="updateSubject()"
+                style="width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:5px; box-sizing: border-box; font-family: inherit;">
+                <option value="" disabled selected>اختر المعلم...</option>
+                <!-- يتم توليد الخيارات عبر الجافاسكريبت -->
+            </select>
+
+            <label style="margin-top:15px; display:block;">المادة:</label>
+            <input type="text" id="teacherSubject" readonly required placeholder="تظهر المادة تلقائياً"
+                style="width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:5px; box-sizing: border-box; font-family: inherit; background-color: #f1f5f9; color: #64748b; cursor: not-allowed;">
+
+            <div class="btn-wrapper">
+                <button class="submit" id="saveTeacherInfoBtn" data-text="حفظ ومتابعة">SAVE</button>
+            </div>
+        </div>
+
+        <div id="setup" style="display:none;">
+            <h2 id="welcomeMsg"></h2>
+            <label id="subjectLabel">القسم / المادة:</label>
+            <select id="dropdown1"
+                style="width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:5px;">
+                <option>قسم الرياضيات</option>
+                <option>قسم اللغة الإنجليزية</option>
+                <option>قسم اللغة العربية</option>
+                <option>قسم التربية الإسلامية</option>
+                <option>قسم مادة المواطنة</option>
+                <option>قسم مادة الإجتماعيات</option>
+                <option>قسم الرياضة</option>
+                <option>قسم التربية الفنية</option>
+                <option>قسم الحاسوب</option>
+                <option>الإدارة</option>
+                <option>الإشراف الإداري</option>
+            </select>
+            <label style="margin-top:15px; display:block;">الحصة الدراسية:</label>
+            <select id="dropdown2"
+                style="width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:5px;">
+                <option value="الأولى">الأولى (8:10 - 8:45)</option>
+                <option value="الثانية">الثانية (8:45 - 9:20)</option>
+                <option value="الثالثة">الثالثة (9:20 - 9:55)</option>
+                <option value="الرابعة">الرابعة (10:25 - 11:00)</option>
+                <option value="الخامسة">الخامسة (11:00 - 11:35)</option>
+                <option value="السادسة">السادسة (11:35 - 12:10)</option>
+                <option value="السابعة">السابعة (12:10 - 12:55)</option>
+            </select>
+            <label style="margin-top:15px; display:block;">هل هي حصة تأمين؟</label>
+            <select id="dropdown3"
+                style="width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:5px;">
+                <option value="لا">لا</option>
+                <option value="نعم">نعم</option>
+            </select>
+            <div class="btn-wrapper">
+                <button class="submit" id="startBtn" data-text="متابعة">NEXT</button>
+            </div>
+        </div>
+
+        <div id="welcome" style="display:none;">
+            <h2>🏫 اختر الفصل</h2>
+            <div id="main" class="grid"></div>
+        </div>
+
+        <div id="submenu" style="display:none;">
+            <h3 id="classTitle"></h3>
+            <h4 id="absentCounter" style="text-align:center; color:var(--danger); margin-top:-10px; margin-bottom:15px; font-weight:bold;">الغائبين : 0</h4>
+            <div id="subGrid" class="grid"></div>
+            <div class="btn-wrapper">
+                <button class="submit" id="saveBtn" data-text="حفظ الغياب">NEXT</button>
+            </div>
+            <div class="btn-normal" id="backBtn" style="margin-top:20px;">⬅ رجوع للفصول</div>
+        </div>
+
+        <div id="logoutSetup" style="display:none; text-align: right;">
+            <h2 style="text-align: center;">🚪 طلب تسجيل خروج</h2>
+
+            <label>الاسم:</label>
+            <input type="text" id="logoutName" readonly
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+
+            <label>المادة:</label>
+            <input type="text" id="logoutSubject" readonly
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+
+            <label>البريد الإلكتروني:</label>
+            <input type="email" id="logoutEmail" readonly
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px; text-align: left;"
+                dir="ltr">
+
+            <label>كلمة المرور:</label>
+            <input type="text" id="logoutPassword" readonly
+                style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px; text-align: left;"
+                dir="ltr">
+
+            <div class="btn-wrapper" style="margin-top: 10px;">
+                <button class="submit" id="sendLogoutReasonBtn" data-text="خروج">خروج</button>
+            </div>
+
+            <div class="btn-normal" onclick="cancelLogout()" style="margin-top: 10px;">إلغاء</div>
+        </div>
+
+        <div id="statsDashboard">
+            <h2 style="color:var(--primary)">📊 لوحة إحصائيات الغياب المدرسية</h2>
+
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalAbsents">0</span>
+                    <span class="stat-desc">إجمالي الطلاب الغائبين</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="highestClass">-</span>
+                    <span class="stat-desc">أكثر فصل غياباً</span>
+                </div>
+            </div>
+
+            <div id="levelAnalysis"></div>
+
+            <h3 style="margin-top:40px; text-align:right;">⚠️ سجل الطلاب الأكثر غياباً</h3>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>اسم الطالب</th>
+                        <th>الفصل</th>
+                        <th>تكرار الغياب</th>
+                    </tr>
+                </thead>
+                <tbody id="studentRankTable"></tbody>
+            </table>
+
+            <div class="btn-normal" onclick="location.reload()" style="margin-top:30px;">العودة لشاشة الدخول</div>
+        </div>
+    </div>
+
+    <div id="unlockOverlay" class="overlay">
+        <div class="modal-card">
+            <h3>🔓 فك قفل الفصل</h3>
+            <p id="unlockText"></p>
+            <div class="code-inputs" dir="ltr" id="unlockCodeInputs">
+                <input type="password" maxlength="1" inputmode="numeric"><input type="password" maxlength="1"
+                    inputmode="numeric"><input type="password" maxlength="1" inputmode="numeric"><input type="password"
+                    maxlength="1" inputmode="numeric">
+            </div>
+            <div class="btn-normal" onclick="confirmUnlock()" style="background:var(--success);">تأكيد الفتح</div>
+            <div onclick="closeUnlockModal()" style="margin-top:15px; cursor:pointer; color:#94a3b8;">إلغاء</div>
+        </div>
+    </div>
+
+    <div id="aboutOverlay" class="overlay">
+        <div style="background:white; height:100%; width:100%; overflow-y:auto; position:relative;">
+            <div
+                style="background:linear-gradient(135deg, var(--primary), var(--secondary)); color:white; padding:20px; text-align:right;">
+                <span onclick="document.getElementById('aboutOverlay').style.display='none'"
+                    style="cursor:pointer; font-size:24px;">➡️ العودة للنظام</span>
+            </div>
+            <div style="padding:40px; max-width:800px; margin:auto;">
+                <div
+                    style="background:#f8fafc; border-radius:25px; padding:30px; border:1px solid #e2e8f0; text-align:right; color: black !important;">
+                    <h4 style="color: black !important;">نبذة حول نظام الغياب الذكي</h4>
+                    <p style="color: black !important;">حل تقني مبتكر يهدف إلى تسهيل إدارة الحضور والغياب المدرسية بواجهة تفاعلية تضمن الدقة والسرعة.</p>
+                    <hr style="border:0; border-top:1px solid #e2e8f0; margin:25px 0;">
+                    <h4 style="color: black !important;">عن المطور</h4>
+                    <p style="color: black !important;">تم تطوير المشروع بجهود الطالب <strong>يحيى حميد عبدالمجيد</strong> (الصف الثاني إعدادي)، تعبيراً
+                        عن شغفه بالتحول الرقمي في التعليم.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resetOverlay" class="overlay">
+        <div class="modal-card">
+            <h3>⚙️ إعدادات الضبط</h3>
+            <p>أدخل كلمة مرور النظام للتصفير الشامل</p>
+            <div class="code-inputs" dir="ltr" id="resetCodeInputs">
+                <input type="password" maxlength="1" inputmode="numeric"><input type="password" maxlength="1"
+                    inputmode="numeric"><input type="password" maxlength="1" inputmode="numeric"><input type="password"
+                    maxlength="1" inputmode="numeric">
+            </div>
+            <div class="btn-normal" onclick="confirmReset()" style="background:var(--danger);">تأكيد المسح</div>
+            <div onclick="closeResetModal()" style="margin-top:15px; cursor:pointer; color:#94a3b8;">إلغاء</div>
+        </div>
+    </div>
+
+    <!-- نافذة دخول المدير المخفية -->
+    <div id="adminAuthOverlay" class="overlay">
+        <div class="modal-card">
+            <h3>🔒 لوحة الإدارة</h3>
+            <p>الرجاء إدخال رمز المشرف السري</p>
+            <div class="code-inputs" dir="ltr" id="adminCodeInputs">
+                <input type="password" maxlength="1" inputmode="numeric"><input type="password" maxlength="1"
+                    inputmode="numeric"><input type="password" maxlength="1" inputmode="numeric"><input type="password"
+                    maxlength="1" inputmode="numeric">
+            </div>
+            <div onclick="document.getElementById('adminAuthOverlay').style.display='none'"
+                style="margin-top:15px; cursor:pointer; color:#94a3b8;">إلغاء</div>
+        </div>
+    </div>
+
+    <!-- نافذة الموافقة على الخروج المخفية تم إزالتها -->
+
+    <!-- نافذة سجل المعلم والتعديل -->
+    <div id="teacherAbsenceOverlay" class="overlay">
+        <div class="modal-card" style="width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h3>📝 سجل غياب الفصل الحالي</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 15px;">يظهر هنا غياب الفصل الذي قمت بتسجيله للتو
+                للقيام بالتعديل عليه.</p>
+            <div id="currentAbsenceList" style="text-align: right; max-height: 400px; overflow-y: auto;"></div>
+            <div class="btn-normal" onclick="document.getElementById('teacherAbsenceOverlay').style.display='none'"
+                style="margin-top: 20px;">إغلاق السجل</div>
+        </div>
+    </div>
+
+    <!-- نافذة الدردشة مع الإدارة -->
+    <div id="chatWidget" class="chat-widget">
+        <div class="chat-header" onclick="toggleChat()">
+            <div>💬 المحادثة مع الإدارة</div>
+            <span id="unreadBadge" class="unread-badge" style="display:none;">0</span>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div id="chatMessages" class="chat-messages">
+                <div style="text-align:center; color:#94a3b8; font-size:12px; margin-top:20px;">
+                    للرد والإرسال، تأكد من ربط حساب Firebase! (وضع المعلم)
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="اكتب رسالتك..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة لدي مشكلة -->
+    <style>
+        #reportProblemOverlay .modal-card {
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+        }
+        #reportProblemOverlay .modal-card > * {
+            flex-shrink: 0;
+        }
+        #reportProblemOverlay #rpProblemDescription {
+            flex-shrink: 1 !important;
+            flex-grow: 1 !important;
+            min-height: 60px;
+        }
+    </style>
+        <div class="overlay" id="ratingOverlay" style="z-index: 10002;">
+            <div class="modal-card" style="overflow-y: auto;">
+                <h3 style="color: var(--primary);">🌟 تقييم النظام والمقترحات</h3>
+                <p style="color: #64748b; font-size: 14px; margin-bottom: 15px;">يسعدنا سماع رأيك لتحسين النظام</p>
+                
+                <label style="text-align: right; display: block;">الاسم:</label>
+                <input type="text" id="rtName" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;" dir="rtl">
+                
+                <label style="text-align: right; display: block;">الإيميل:</label>
+                <input type="email" id="rtEmail" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; text-align: left; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;" dir="ltr">
+                
+                <label style="text-align: right; display: block;">كلمة المرور:</label>
+                <input type="text" id="rtPassword" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; text-align: left; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;" dir="ltr">
+                
+                <label style="text-align: center; display: block; margin-top: 10px; color: var(--primary); font-weight: bold;">التقييم:</label>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                </div>
+
+                <label style="text-align: right; display: block; margin-top: 10px;">المقترحات (اختياري):</label>
+                <textarea id="rtSuggestion" rows="3" placeholder="اكتب مقترحك هنا (ليس إجبارياً)..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; resize: none; font-family: inherit; margin-bottom: 15px; background: rgba(15, 23, 42, 0.6); color: var(--text-main);"></textarea>
+
+                <div class="btn-wrapper" style="margin-top: 10px;">
+                    <button class="submit" onclick="submitRating()" data-text="إرسال">إرسال</button>
+                </div>
+                <div class="btn-normal" style="margin-top: 15px; background: rgba(239, 68, 68, 0.2); color: var(--danger); border-color: var(--danger);" onclick="closeRatingModal()">إلغاء</div>
+            </div>
+        </div>
+
+    <div id="reportProblemOverlay" class="overlay">
+        <div class="modal-card" style="overflow-y: auto;">
+            <h3>⚠️ لدي مشكلة</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 15px;">الرجاء تعبئة النموذج أدناه للإبلاغ عن مشكلة</p>
+            
+            <label style="display:block; text-align:right;">الاسم:</label>
+            <input type="text" id="rpName" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">المادة:</label>
+            <input type="text" id="rpSubject" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">البريد الإلكتروني:</label>
+            <input type="email" id="rpEmail" readonly dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">كلمة المرور:</label>
+            <input type="text" id="rpPassword" readonly dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+            
+            <label style="display:block; text-align:right; font-weight: bold; margin-bottom: 10px;">اختر طريقة التواصل:</label>
+            <div style="display: flex; flex-direction: column; gap: 10px; text-align: right; margin-bottom: 15px;">
+                <label id="rpOptionEmail" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="rpContactMethod" value="من خلال الايميل" style="width: 18px; height: 18px;">
+                    من خلال الايميل
+                </label>
+                <label id="rpOptionWhatsApp" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="rpContactMethod" value="من خلال الواتساب" style="width: 18px; height: 18px;">
+                    من خلال الواتساب
+                </label>
+                <label id="rpOptionTeams" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="rpContactMethod" value="من خلال التيمز" style="width: 18px; height: 18px;">
+                    من خلال التيمز
+                </label>
+                <label id="rpOptionWebsite" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="rpContactMethod" value="من خلال الموقع" style="width: 18px; height: 18px;">
+                    من خلال الموقع
+                </label>
+                <label id="rpOptionSchool" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="rpContactMethod" value="في المدرسة" style="width: 18px; height: 18px;" checked>
+                    في المدرسة
+                </label>
+            </div>
+
+            <label style="display:block; text-align:right; font-weight: bold;">قم بوصف المشكلة:</label>
+            <textarea id="rpProblemDescription" rows="4" placeholder="اكتب وصفاً مفصلاً للمشكلة هنا..." style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; margin-bottom: 10px; font-family: inherit; resize: none;"></textarea>
+            
+            <div class="btn-wrapper" style="margin-top: 15px;">
+                <button class="submit" id="sendProblemReportBtn" data-text="إرسال" onclick="sendProblemReport()">إرسال</button>
+            </div>
+            <div onclick="document.getElementById('reportProblemOverlay').style.display='none'" style="margin-top:15px; cursor:pointer; color:#94a3b8;">إلغاء</div>
+        </div>
+    </div>
+
+    <!-- نافذة استكمال البيانات -->
+    <div id="completeDataOverlay" class="overlay">
+        <div class="modal-card">
+            <h3>📋 استكمال البيانات</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 15px;">الرجاء تحديث بياناتك أدناه</p>
+            
+            <label style="display:block; text-align:right;">الاسم:</label>
+            <input type="text" id="cdName" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">المادة:</label>
+            <input type="text" id="cdSubject" readonly style="width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">البريد الإلكتروني:</label>
+            <input type="email" id="cdEmail" readonly dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <label style="display:block; text-align:right;">كلمة المرور:</label>
+            <input type="text" id="cdPassword" readonly dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; background-color: #f1f5f9; color: #64748b; margin-bottom: 10px;">
+            
+            <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
+            
+            <label style="display:block; text-align:right;">رقم الهاتف:</label>
+            <input type="tel" id="cdPhone" required placeholder="أدخل رقم الهاتف..." dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; margin-bottom: 10px; font-family: inherit;">
+            
+            <label style="display:block; text-align:right;">الرقم السكاني:</label>
+            <input type="number" id="cdCivilId" required placeholder="أدخل الرقم السكاني..." dir="ltr" style="text-align:left; width:100%; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-top:5px; margin-bottom: 10px; font-family: inherit;">
+            
+            <div class="btn-wrapper" style="margin-top: 15px;">
+                <button class="submit" id="saveCompleteDataBtn" data-text="حفظ البيانات">حفظ البيانات</button>
+            </div>
+            <div onclick="document.getElementById('completeDataOverlay').style.display='none'" style="margin-top:15px; cursor:pointer; color:#94a3b8;">إلغاء</div>
+        </div>
+    </div>
+
+    <div id="loader" class="loading-overlay">
+        <div class="loader">
+            <svg id="bird" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <path
+                    d="M433.8 281.3c-13.8 0-41.9-5.1-66.2-13.1-40-13.2-94.8-19.1-133.5-5.2-34.9 12.5-62.4 20-109.4 20-33 0-66.3-5-95.2-14.7-6.2-2.1-12.7 1.3-14.8 7.5-2.1 6.2 1.3 12.7 7.5 14.8C54 301.1 90.7 306.6 127 306.6c49.2 0 78.5-7.9 114.7-20.8 35.8-12.8 86.6-6.6 122.3 5.2 30.6 10.1 61.2 12.8 69.8 12.8h.9c6.6 0 12-5.4 12-12s-5.4-12-12.9-12.5z"
+                    / fill="#f1c40f">
+                    <circle cx="380" cy="180" r="25" fill="white" />
+                    <circle cx="390" cy="180" r="10" fill="black" />
+                    <path d="M410 210 Q 450 210 440 240 Q 400 240 400 220 Z" fill="#e74c3c" />
+                    <path d="M380 250 Q 420 260 410 280 Q 370 270 380 250 Z" fill="#e74c3c" />
+                    <ellipse cx="250" cy="220" rx="100" ry="70" fill="#f1c40f" />
+                    <path d="M150 200 Q 100 150 120 250 Z" fill="#fff" />
+            </svg>
+            <div class="flappyBirdScene">
+                <div class="sceneTop">
+                    <div id="birdObstacle"></div>
+                    <div id="birdObstacle" class="birdObs2"></div>
+                    <div id="birdObstacle" class="birdObs3"></div>
+                    <div id="birdObstacle" class="birdObs4"></div>
+                    <div id="birdObstacle"></div>
+                    <div id="birdObstacle" class="birdObs2"></div>
+                    <div id="birdObstacle" class="birdObs3"></div>
+                    <div id="birdObstacle" class="birdObs4"></div>
+                </div>
+            </div>
+            <div class="flappyBirdSceneBottom">
+                <div class="sceneBottom">
+                    <div id="birdObstacle"></div>
+                    <div id="birdObstacle" class="birdObs2"></div>
+                    <div id="birdObstacle" class="birdObs3"></div>
+                    <div id="birdObstacle" class="birdObs4"></div>
+                    <div id="birdObstacle"></div>
+                    <div id="birdObstacle" class="birdObs2"></div>
+                    <div id="birdObstacle" class="birdObs3"></div>
+                    <div id="birdObstacle" class="birdObs4"></div>
+                </div>
+            </div>
+        </div>
+        <p
+            style="font-weight: bold; color: var(--primary); margin-top: 10px; font-size: 1.1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            جاري حفظ البيانات طيراناً...</p>
+    </div>
+
+    <script>
+        // المنطق البرمجي (نفس منطقك الأصلي مع تحديث بسيط لأسماء الـ Classes)
+        const ABSENCE_URL = "https://script.google.com/macros/s/AKfycbz_Fv_WYg1s25Fz73MXpaRro9Ka3GvkZlwJMvfsGL_aYpNfOq7S3yzbM_N03ZTDShZg/exec";
+        // رابط جوجل شيت المنفصل لبيانات المعلمين (يجب تغييره برابطك الجديد)
+        const TEACHER_INFO_URL = "https://script.google.com/macros/s/AKfycbzyiRGZnTRCLLZGgzChOG1pbUXdw9kyusdYSlfYOKYsf-ZrEqi1k0efkquYAwwC85Er/exec";
+        // رابط جوجل شيت المنفصل لتسجيل الخروج واسبابه (يجب تغييره برابطك الجديد)
+        const TEACHER_LOGOUT_URL = "https://script.google.com/macros/s/AKfycbx2oC0XoYEEw7u9g1iMIpauTaeWoH3DvuNxcSdSL-CUDZdcJ6SoKFcK9xdHwoNfWrov/exec";
+        // رابط جوجل شيت المنفصل لاستكمال البيانات (رقم الهاتف والرقم السكاني)
+        const COMPLETE_DATA_URL = "https://script.google.com/macros/s/AKfycbwnYXXTuQg8JMffKY8RttK3Y-zKrctPU06QOtRGPnvQ9dmE8Dvcuq4nxu1X04nKYDaI/exec";
+        // رابط جوجل شيت المنفصل للتبليغ عن مشكلة
+        const REPORT_PROBLEM_URL = "https://script.google.com/macros/s/AKfycbxRHXKCDun10CDMpGyD92ysOGXluxJFNXpkpLYUIgY_hOUG09ZhmB_sG125PvMlT9E6fQ/exec";
+
+        let loggedInTeacherName = "", currentLabel = "", pendingClassLabel = "";
+        let loggedInTeacherSubject = "";
+        let loggedInEmail = "";
+        let loggedInPassword = "";
+
+        // --- قائمة المعلمين والمواد الخاصة بهم ---
+        // يمكنك تعديل أسماء المعلمين وموادهم هنا في هذه القائمة
+        const teachersData = {
+            "أحمد ادولحيان": "تربية إسلامية",
+            "أحمد ابراهيم سلمان الحلال": "تربية فنية",
+            "أحمد ابراهيم عبدالحميد حسنين": "الرياضيات",
+            "أحمد السعيد رمضان علي": "اللغة الإنجليزية",
+            "أحمد أيوب ابراهيم الخلاف": "اللغة الإنجليزية",
+            "أحمد جابر حسين عبدالرحيم": "الحاسب الآلي",
+            "أحمد صبحي ابراهيم جاد": "اللغة الإنجليزية",
+            "أحمد عبدالرؤوف ادريس عيد": "اللغة الإنجليزية",
+            "أحمد عبدالغني يوسف تقي": "اللغة الإنجليزية",
+            "أحمد محمود عبدالحميد غنوش": "الحاسب الآلي",
+            "أحمد منير عبدالستار موسى": "اقتصاد منزلي",
+            "أحمد يسري الزهري": "اللغة العربية",
+            "اسامه شوقي سالم عزالدين": "تربية أسرية",
+            "اشرف البطل محمود صالح": "الرياضيات",
+            "السيد مشعل جعفر محمد درويش": "التربية الرياضية",
+            "بشار محمد حسين الخلفان": "اللغة العربية",
+            "بندر محمد عبدالله المفلح": "اللغة العربية",
+            "حسن علي تركي متروك": "التربية الرياضية",
+            "حماد شعبان عبدالجواد علي": "مواد اجتماعية",
+            "خالد علي صالح احمد": "اللغة العربية",
+            "دخيل علي دخيل مقدم": "جغرافيا",
+            "رمضان محمد محمد رمضان": "الرياضيات",
+            "زهير عمار احمد مرغاد": "اللغة العربية",
+            "سلطان سعود محمد الدوسري": "العلوم العامة",
+            "صالح مرزوق عودة الجهني": "اللغة الإنجليزية",
+            "عباس احمد عبدالله سرحان": "اللغة العربية",
+            "عباس السيدجواد كاظم البحراني": "العلوم العامة",
+            "عبدالحميد محمد عبدالحميد شلقامي": "كيمياء",
+            "عبدالرحيم الجبيلي عبدالعظيم السعدني": "اللغة الإنجليزية",
+            "عبدالعزيز سلمان عبدالله حسين": "اللغة العربية",
+            "عبدالعزيز منصور احمد ناصر": "اللغة العربية",
+            "عبدالله الشيخ ابراهيم آل مبارك": "تاريخ",
+            "عبدالله سامي حسين الدوسري": "تربية إسلامية",
+            "عدي محمد اسحاق عبدالرحمن": "الرياضيات",
+            "عطية محمد عبد الله يوسف": "التربية الرياضية",
+            "علي عماد الدين ايوب": "تربية إسلامية",
+            "عماد حسين حسن ابوحميد": "اللغة الإنجليزية",
+            "كميل حسن علي ابراهيم": "مواد اجتماعية",
+            "مجدي محمد علي شحاتة بدر": "العلوم العامة",
+            "محسن سيف النصر محمود ابراهيم": "صعوبات تعلم",
+            "محمد ابوالفتوح محمود احمد": "اللغة الإنجليزية",
+            "محمد احمد رجعه المركاز": "مواد اجتماعية",
+            "محمد احمد مصطفى الخطيب": "تربية فنية",
+            "محمد صالح عبدالمعتمد صالح": "العلوم العامة",
+            "محمود صلاح عبدالنواب عزيز": "الرياضيات",
+            "مصطفى العربي مصطفى يوسف": "موسيقى",
+            "مناف احمد عبدالله النجار": "التربية الرياضية",
+            "منهل علي حسن ابوادريس": "تصميم جرافيك",
+            "موسى عبدالمعين محمد القرني": "اللغة العربية",
+            "نبيل عادل عبدالحسين محمد": "التربية الرياضية",
+            "هشام بيجا": "تربية إسلامية",
+            "هشام ماجد السيد هاشم": "الخزف والفخار",
+            "ياسر محمد عطيه هيكل": "الحاسب الآلي",
+            "يحيى يحيى عبدالباقي عبدالباقي": "الرياضيات",
+            "يوسف أحمد حسن ربيع": "التربية الرياضية",
+            "حسن أحمد المؤمن": "تقنية المعلومات"
+        };
+
+        // دالة تحديث المادة تلقائياً بناءً على اختيار المعلم
+        function updateSubject() {
+            const teacherSelect = document.getElementById("teacherFullName");
+            const subjectInput = document.getElementById("teacherSubject");
+            const selectedTeacher = teacherSelect.value;
+
+            if (selectedTeacher && teachersData[selectedTeacher]) {
+                subjectInput.value = teachersData[selectedTeacher];
+            } else {
+                subjectInput.value = "";
+            }
+        }
+
+        // دالة لملء قائمة المعلمين عند تحميل الصفحة
+        function populateTeachers() {
+            const select = document.getElementById("teacherFullName");
+            for (const teacher in teachersData) {
+                const option = document.createElement("option");
+                option.value = teacher;
+                option.textContent = teacher;
+                select.appendChild(option);
+            }
+        }
+
+        const levels = [{ name: "السادس", count: 6, capacity: 180 }, { name: "الأول", count: 5, capacity: 150 }, { name: "الثاني", count: 5, capacity: 150 }, { name: "الثالث", count: 6, capacity: 180 }];
+
+        // دالة لتحديث خيار الحصة تلقائياً حسب توقيت البحرين
+        function updateCurrentPeriod() {
+            try {
+                const bahrainTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Bahrain" });
+                const now = new Date(bahrainTime);
+                const hours = now.getHours();
+                const mins = now.getMinutes();
+                const timeInMins = hours * 60 + mins;
+
+                let currentPeriod = "الأولى"; // الافتراضي
+
+                if (timeInMins >= 8 * 60 + 10 && timeInMins < 8 * 60 + 45) {
+                    currentPeriod = "الأولى";
+                } else if (timeInMins >= 8 * 60 + 45 && timeInMins < 9 * 60 + 20) {
+                    currentPeriod = "الثانية";
+                } else if (timeInMins >= 9 * 60 + 20 && timeInMins < 9 * 60 + 55) {
+                    currentPeriod = "الثالثة";
+                } else if (timeInMins >= 10 * 60 + 25 && timeInMins < 11 * 60 + 0) {
+                    currentPeriod = "الرابعة";
+                } else if (timeInMins >= 11 * 60 + 0 && timeInMins < 11 * 60 + 35) {
+                    currentPeriod = "الخامسة";
+                } else if (timeInMins >= 11 * 60 + 35 && timeInMins < 12 * 60 + 10) {
+                    currentPeriod = "السادسة";
+                } else if (timeInMins >= 12 * 60 + 10) {
+                    currentPeriod = "السابعة";
+                }
+
+                // --- ضبط المصنع التلقائي بعد انتهاء الحصة (فتح الفصول فقط) ---
+                let savedPeriod = localStorage.getItem("lastSavedPeriod");
+                if (savedPeriod && savedPeriod !== currentPeriod) {
+                    // تغيرت الحصة: نقوم بفتح الفصول من جديد (مسح الأقفال وسجل الحصة المؤقت)
+                    localStorage.removeItem("completedClasses");
+                    localStorage.removeItem("currentSessionAbsence");
+                    
+                    // تحديث واجهة الفصول إذا كان المعلم في شاشة الفصول
+                    if (document.getElementById("welcome") && document.getElementById("welcome").style.display === "block") {
+                        document.getElementById("startBtn").click();
+                    }
+                }
+                localStorage.setItem("lastSavedPeriod", currentPeriod);
+
+                const dropdown = document.getElementById("dropdown2");
+                if (dropdown) {
+                    dropdown.value = currentPeriod;
+                }
+            } catch (error) {
+                console.error("Error setting period:", error);
+            }
+        }
+
+
+        // --- فحص وتطبيق المظهر ---
+        function applyTheme(themeName) {
+            // لا نحذف كلاس الجهاز الحالي
+            const deviceClass = document.body.className.match(/(?:^|\s)(device-\S+)/);
+            document.body.className = '';
+            if (deviceClass) {
+                document.body.classList.add(deviceClass[1]);
+            }
+            if (themeName) {
+                document.body.classList.add('theme-' + themeName);
+            }
+            if (document.getElementById('glass-' + themeName)) {
+                document.getElementById('glass-' + themeName).checked = true;
+            }
+        }
+
+        function checkCompleteDataStatus() {
+            if (loggedInTeacherName) {
+                const isCompleted = localStorage.getItem("dataCompleted_" + loggedInTeacherName);
+                if (!isCompleted) {
+                    document.getElementById("completeDataBtn").style.display = "flex";
+                } else {
+                    document.getElementById("completeDataBtn").style.display = "none";
+                }
+            }
+        }
+
+        function openCompleteDataModal() {
+            document.getElementById("cdName").value = loggedInTeacherName || "";
+            document.getElementById("cdSubject").value = loggedInTeacherSubject || "";
+            document.getElementById("cdEmail").value = loggedInEmail || "غير متوفر";
+            document.getElementById("cdPassword").value = loggedInPassword || "غير متوفر";
+            
+            document.getElementById("cdPhone").value = "";
+            document.getElementById("cdCivilId").value = "";
+            
+            document.getElementById("completeDataOverlay").style.display = "flex";
+        }
+
+        document.getElementById("saveCompleteDataBtn").onclick = () => {
+            const phone = document.getElementById("cdPhone").value.trim();
+            const civilId = document.getElementById("cdCivilId").value.trim();
+            
+            if(!phone || !civilId) {
+                return alert("الرجاء تعبئة رقم الهاتف والرقم السكاني");
+            }
+            
+            document.getElementById("loader").style.display = "flex";
+            const loaderText = document.querySelector("#loader p");
+            if (loaderText) loaderText.textContent = "جاري إرسال البيانات...";
+            
+            const dateObj = new Date();
+            const dateStr = dateObj.toLocaleDateString("ar-EG");
+            const timeStr = dateObj.toLocaleTimeString("ar-EG");
+            
+            const payload = [{
+                "name": document.getElementById("cdName").value,
+                "subject": document.getElementById("cdSubject").value,
+                "email": document.getElementById("cdEmail").value,
+                "password": document.getElementById("cdPassword").value,
+                "phone": phone,
+                "civilId": civilId,
+                "date": dateStr,
+                "time": timeStr
+            }];
+            
+            try {
+                fetch(COMPLETE_DATA_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                
+                // حفظ العلامة في التخزين المحلي بحيث لا تظهر مرة أخرى للمعلم
+                localStorage.setItem("dataCompleted_" + loggedInTeacherName, "true");
+                localStorage.setItem("teacherPhone_" + loggedInTeacherName, phone);
+                localStorage.setItem("teacherCivilId_" + loggedInTeacherName, civilId);
+                
+                setTimeout(() => {
+                    document.getElementById("loader").style.display = "none";
+                    if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                    alert("تم حفظ واستكمال بياناتك بنجاح، شكراً لك!");
+                    document.getElementById("completeDataOverlay").style.display = "none";
+                    document.getElementById("completeDataBtn").style.display = "none";
+                }, 1500);
+            } catch(e) {
+                document.getElementById("loader").style.display = "none";
+                if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                alert("حدث خطأ في الاتصال");
+            }
+        };
+
+        const RATING_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGHVpswbJQk62_HhJFiRXHT8n71suvdcZ9yk2GTIo8lIDvA8M8q1GO9mBMwVFOmWmD/exec"; // ضع رابط جوجل سكربت الجديد هنا
+
+        function openRatingModal() {
+            forceCloseMenu();
+            if (!loggedInTeacherName) {
+                alert("يرجى تسجيل الدخول أولاً لإرسال تقييم أو مقترح.");
+                return;
+            }
+
+            // تعبئة البيانات الأساسية
+            document.getElementById("rtName").value = loggedInTeacherName;
+            document.getElementById("rtEmail").value = loggedInEmail || "غير متوفر";
+            document.getElementById("rtPassword").value = loggedInPassword || "غير متوفر";
+            document.getElementById("rtSuggestion").value = "";
+            
+            // تصفير النجوم
+            const stars = document.getElementsByName("rating");
+            stars.forEach(star => star.checked = false);
+
+            document.getElementById("ratingOverlay").style.display = "flex";
+        }
+
+        function closeRatingModal() {
+            document.getElementById("ratingOverlay").style.display = "none";
+        }
+
+        function submitRating() {
+            let ratingValue = 0;
+            const stars = document.getElementsByName("rating");
+            for (const star of stars) {
+                if (star.checked) {
+                    ratingValue = star.value;
+                    break;
+                }
+            }
+
+            if (ratingValue === 0) {
+                alert("الرجاء اختيار تقييم (عدد النجوم) قبل الإرسال.");
+                return;
+            }
+
+            if (RATING_SCRIPT_URL === "رابط_الاسكربت_هنا") {
+                alert("لم يتم إعداد رابط جوجل سكربت الخاص بالتقييمات بعد. يرجى إضافة الرابط في الكود المصدري.");
+                return;
+            }
+
+            const loaderText = document.getElementById("loaderText");
+            if (loaderText) loaderText.textContent = "جاري إرسال التقييم والمقترحات...";
+            document.getElementById("loader").style.display = "flex";
+
+            const data = {
+                name: document.getElementById("rtName").value,
+                email: document.getElementById("rtEmail").value,
+                password: document.getElementById("rtPassword").value,
+                rating: ratingValue,
+                suggestion: document.getElementById("rtSuggestion").value.trim()
+            };
+
+            fetch(RATING_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                document.getElementById("loader").style.display = "none";
+                alert("تم إرسال التقييم بنجاح، شكراً لك!");
+                closeRatingModal();
+            })
+            .catch(error => {
+                document.getElementById("loader").style.display = "none";
+                alert("حدث خطأ أثناء الإرسال. يرجى المحاولة لاحقاً.");
+                console.error("Error:", error);
+            });
+        }
+
+        function openReportProblemModal() {
+            forceCloseMenu();
+            if (!loggedInTeacherName) {
+                alert("يرجى تسجيل الدخول أولاً للإبلاغ عن مشكلة.");
+                return;
+            }
+
+            // تعبئة البيانات الأساسية
+            document.getElementById("rpName").value = loggedInTeacherName;
+            document.getElementById("rpSubject").value = loggedInTeacherSubject;
+            document.getElementById("rpEmail").value = loggedInEmail || "غير متوفر";
+            document.getElementById("rpPassword").value = loggedInPassword || "غير متوفر";
+            document.getElementById("rpProblemDescription").value = "";
+
+            // استرجاع الهاتف والرقم السكاني إن وجد
+            const savedPhone = localStorage.getItem("teacherPhone_" + loggedInTeacherName);
+            const savedCivilId = localStorage.getItem("teacherCivilId_" + loggedInTeacherName);
+
+            // تفعيل/إخفاء طرق التواصل بناءً على توفر البيانات
+            const optEmail = document.getElementById("rpOptionEmail");
+            const optWhatsApp = document.getElementById("rpOptionWhatsApp");
+            const optTeams = document.getElementById("rpOptionTeams");
+
+            if (loggedInEmail && loggedInEmail !== "") optEmail.style.display = "flex";
+            else optEmail.style.display = "none";
+
+            if (savedPhone && savedPhone !== "") optWhatsApp.style.display = "flex";
+            else optWhatsApp.style.display = "none";
+
+            // إظهار التيمز فقط في حال وجود رقم سكاني
+            if (savedCivilId && savedCivilId !== "") optTeams.style.display = "flex";
+            else optTeams.style.display = "none";
+
+            // جعل الخيار "في المدرسة" هو الافتراضي دائمًا عند فتح النافذة
+            const radios = document.getElementsByName("rpContactMethod");
+            radios.forEach(r => {
+                if(r.value === "في المدرسة") r.checked = true;
+                else r.checked = false;
+            });
+
+            document.getElementById("reportProblemOverlay").style.display = "flex";
+        }
+
+        function sendProblemReport() {
+            const description = document.getElementById("rpProblemDescription").value.trim();
+            if (!description) {
+                alert("الرجاء كتابة وصف للمشكلة.");
+                return;
+            }
+
+            let selectedMethod = "";
+            const radios = document.getElementsByName("rpContactMethod");
+            for (const radio of radios) {
+                if (radio.checked) {
+                    selectedMethod = radio.value;
+                    break;
+                }
+            }
+
+            if (!selectedMethod) {
+                alert("الرجاء اختيار طريقة التواصل.");
+                return;
+            }
+
+            document.getElementById("loader").style.display = "flex";
+            const loaderText = document.querySelector("#loader p");
+            if (loaderText) loaderText.textContent = "جاري إرسال البلاغ طيراناً...";
+
+            const dateObj = new Date();
+            const dateStr = dateObj.toLocaleDateString("ar-EG");
+            const timeStr = dateObj.toLocaleTimeString("ar-EG");
+
+            const savedPhone = localStorage.getItem("teacherPhone_" + loggedInTeacherName) || "";
+            const savedCivilId = localStorage.getItem("teacherCivilId_" + loggedInTeacherName) || "";
+
+            const payload = [{
+                "name": loggedInTeacherName,
+                "subject": loggedInTeacherSubject,
+                "email": loggedInEmail,
+                "password": loggedInPassword,
+                "phone": savedPhone,
+                "civilId": savedCivilId,
+                "contactMethod": selectedMethod,
+                "description": description,
+                "date": dateStr,
+                "time": timeStr
+            }];
+
+            try {
+                if (REPORT_PROBLEM_URL === "أضف_رابط_سكربت_التبليغ_عن_مشكلة_هنا") {
+                    console.warn("لم يتم إعداد رابط جوجل شيت للمشاكل بعد. البلاغ لم يُرسل فعلياً للويب خطاف.");
+                    setTimeout(() => {
+                        document.getElementById("loader").style.display = "none";
+                        if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                        alert("تم إرسال بلاغك بنجاح. سنتواصل معك في أقرب وقت عبر: " + selectedMethod);
+                        document.getElementById("reportProblemOverlay").style.display = "none";
+                    }, 1500);
+                } else {
+                    fetch(REPORT_PROBLEM_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) })
+                    .then(() => {
+                        setTimeout(() => {
+                            document.getElementById("loader").style.display = "none";
+                            if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                            alert("تم إرسال بلاغك بنجاح. سنتواصل معك في أقرب وقت عبر: " + selectedMethod);
+                            document.getElementById("reportProblemOverlay").style.display = "none";
+                        }, 1000);
+                    }).catch(e => {
+                        document.getElementById("loader").style.display = "none";
+                        if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                        alert("حدث خطأ في الاتصال");
+                    });
+                }
+            } catch (e) {
+                document.getElementById("loader").style.display = "none";
+                if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                alert("حدث خطأ في الاتصال");
+            }
+        }
+
+        // --- فحص تسجيل الدخول السابق ---
+        window.onload = () => {
+            populateTeachers(); // ملء قائمة المعلمين
+            updateCurrentPeriod(); // تحديث الحصة حسب توقيت البحرين
+
+
+            // تشغيل التحديث بشكل دوري كل دقيقة لاكتشاف تغير الحصة أثناء فتح النظام
+            setInterval(updateCurrentPeriod, 60000);
+
+            // استرجاع المظهر
+            const savedTheme = localStorage.getItem("appTheme") || "platinum";
+            applyTheme(savedTheme);
+
+            // إضافة مستمعي أحداث تغيير المظهر
+            document.querySelectorAll('input[name="theme"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const selectedTheme = this.value;
+                    localStorage.setItem("appTheme", selectedTheme);
+                    applyTheme(selectedTheme);
+                });
+            });
+
+            const savedTeacherInfo = localStorage.getItem("teacherInfo");
+            if (savedTeacherInfo) {
+                const info = JSON.parse(savedTeacherInfo);
+                loggedInTeacherName = info.name;
+                loggedInTeacherSubject = info.subject;
+                loggedInEmail = info.email || "";
+                loggedInPassword = info.password || "";
+
+                // تعبئة البيانات في الحقول لمجرد التأكيد أو إذا احتاجها النظام
+                const teacherSelect = document.getElementById("teacherFullName");
+                // إضافة المعلم للقائمة إذا لم يكن موجوداً من قبل ليتم اختياره
+                if (!Array.from(teacherSelect.options).some(opt => opt.value === loggedInTeacherName)) {
+                    const newOpt = document.createElement("option");
+                    newOpt.value = loggedInTeacherName;
+                    newOpt.textContent = loggedInTeacherName;
+                    teacherSelect.appendChild(newOpt);
+                }
+                teacherSelect.value = loggedInTeacherName;
+                document.getElementById("teacherSubject").value = loggedInTeacherSubject;
+
+                // الانتقال لشاشة الترحيب الخاصة بالمعلمين المسجلين مسبقاً
+                document.getElementById("login").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "block";
+                checkCompleteDataStatus();
+                document.getElementById("returningWelcomeMsg").textContent = "مرحباً أ/ " + loggedInTeacherName;
+
+                // إخفاء خيار اختيار المادة لأنها محفوظة مسبقاً من شاشة الإعدادات اللاحقة
+                document.getElementById("subjectLabel").style.display = "none";
+                document.getElementById("dropdown1").style.display = "none";
+                document.getElementById("dropdown1").value = loggedInTeacherSubject; // لضمان استخدامها في الكود لاحقاً
+
+                // إعداد رسالة الترحيب في شاشة الإعدادات اللاحقة أيضاً
+                document.getElementById("welcomeMsg").textContent = "إعدادات الحصة";
+            } else {
+                // لا يوجد معلم مسجل، سيتم عرض نموذج تسجيل الدخول
+            }
+        };
+
+        // --- معالجة تسجيل الدخول بالتصميم الجديد ---
+        function handleCustomLogin(event) {
+            event.preventDefault();
+            loggedInEmail = document.getElementById("loginEmail").value;
+            loggedInPassword = document.getElementById("loginPassword").value;
+
+            if (loggedInEmail === "yahyahameed2025@gmail.com" && loggedInPassword === "yahya2025") {
+                const name = "المؤسس يحيى حميد";
+                const subject = "الإدارة";
+                
+                localStorage.setItem("teacherInfo", JSON.stringify({ name: name, subject: subject, email: loggedInEmail, password: loggedInPassword }));
+                loggedInTeacherName = name;
+                loggedInTeacherSubject = subject;
+
+                document.getElementById("login").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "block";
+                checkCompleteDataStatus();
+                document.getElementById("returningWelcomeMsg").textContent = "مرحباً أ/ " + loggedInTeacherName;
+                
+                if (document.getElementById("welcomeMsg")) {
+                    document.getElementById("welcomeMsg").textContent = "إعدادات الحصة";
+                }
+
+                if(document.getElementById("subjectLabel")) document.getElementById("subjectLabel").style.display = "none";
+                if(document.getElementById("dropdown1")) {
+                    document.getElementById("dropdown1").style.display = "none";
+                    
+                    let dropdown1 = document.getElementById("dropdown1");
+                    let exists = Array.from(dropdown1.options).some(opt => opt.value === subject);
+                    if (!exists) {
+                        let newOpt = document.createElement("option");
+                        newOpt.value = subject;
+                        newOpt.textContent = subject;
+                        dropdown1.appendChild(newOpt);
+                    }
+                    dropdown1.value = subject;
+                }
+                return;
+            }
+            // فحص إذا كان المعلم مسجل سابقاً بهذا الإيميل
+            let allTeachers = JSON.parse(localStorage.getItem("allTeachers") || "{}");
+            let foundTeacher = null;
+            let oldKey = null;
+            for (let k in allTeachers) {
+                if (allTeachers[k].email === loggedInEmail) {
+                    foundTeacher = allTeachers[k];
+                    oldKey = k;
+                    break;
+                }
+            }
+
+            if (foundTeacher) {
+                // تحديث كلمة المرور في حال تغيرت
+                foundTeacher.password = loggedInPassword;
+                if (oldKey !== loggedInEmail + "|" + loggedInPassword) {
+                    delete allTeachers[oldKey];
+                    allTeachers[loggedInEmail + "|" + loggedInPassword] = foundTeacher;
+                    localStorage.setItem("allTeachers", JSON.stringify(allTeachers));
+                }
+
+                loggedInTeacherName = foundTeacher.name;
+                loggedInTeacherSubject = foundTeacher.subject;
+                
+                // تحديث المعلم الحالي
+                localStorage.setItem("teacherInfo", JSON.stringify(foundTeacher));
+
+                document.getElementById("login").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "block";
+                checkCompleteDataStatus();
+                document.getElementById("returningWelcomeMsg").textContent = "مرحباً أ/ " + loggedInTeacherName;
+                
+                if (document.getElementById("welcomeMsg")) {
+                    document.getElementById("welcomeMsg").textContent = "إعدادات الحصة";
+                }
+
+                if(document.getElementById("subjectLabel")) document.getElementById("subjectLabel").style.display = "none";
+                if(document.getElementById("dropdown1")) {
+                    document.getElementById("dropdown1").style.display = "none";
+                    
+                    let dropdown1 = document.getElementById("dropdown1");
+                    let exists = Array.from(dropdown1.options).some(opt => opt.value === loggedInTeacherSubject);
+                    if (!exists) {
+                        let newOpt = document.createElement("option");
+                        newOpt.value = loggedInTeacherSubject;
+                        newOpt.textContent = loggedInTeacherSubject;
+                        dropdown1.appendChild(newOpt);
+                    }
+                    dropdown1.value = loggedInTeacherSubject;
+                }
+                
+                // تحديث الدردشة إن وجدت
+                if (typeof listenToMessages === 'function') {
+                    listenToMessages();
+                }
+                return;
+            }
+
+            // إخفاء شاشة تسجيل الدخول والانتقال لشاشة إكمال بيانات المعلم
+            document.getElementById("login").style.display = "none";
+            document.getElementById("teacherInfoSetup").style.display = "block";
+        }
+
+        // دالة للمتابعة من شاشة الترحيب إلى شاشة إعداد الحصة
+        document.getElementById("startAbsenceBtn").onclick = () => {
+            document.getElementById("returningTeacherWelcome").style.display = "none";
+            document.getElementById("setup").style.display = "block";
+            if (document.getElementById("chatWidget")) {
+                document.getElementById("chatWidget").style.display = "none";
+            }
+        };
+
+        // دالة عرض شاشة طلب تسجيل خروج المعلم
+        function logoutTeacher() {
+            document.getElementById("returningTeacherWelcome").style.display = "none";
+            document.getElementById("setup").style.display = "none";
+            document.getElementById("logoutSetup").style.display = "block";
+
+            // تعبئة البيانات
+            document.getElementById("logoutName").value = loggedInTeacherName;
+            document.getElementById("logoutSubject").value = loggedInTeacherSubject;
+            document.getElementById("logoutEmail").value = loggedInEmail || "غير متوفر";
+            document.getElementById("logoutPassword").value = loggedInPassword || "غير متوفر";
+        }
+
+        function cancelLogout() {
+            document.getElementById("logoutSetup").style.display = "none";
+            document.getElementById("returningTeacherWelcome").style.display = "block";
+        }
+
+        document.getElementById("sendLogoutReasonBtn").onclick = () => {
+            document.getElementById("loader").style.display = "flex";
+            const dateObj = new Date();
+            const dateStr = dateObj.toLocaleDateString("ar-EG");
+            const timeStr = dateObj.toLocaleTimeString("ar-EG");
+
+            const payload = [{
+                "email": loggedInEmail || document.getElementById("logoutEmail").value,
+                "password": loggedInPassword || document.getElementById("logoutPassword").value,
+                "link": window.location.href,
+                "name": loggedInTeacherName || document.getElementById("logoutName").value,
+                "teacher": loggedInTeacherName || document.getElementById("logoutName").value,
+                "subject": loggedInTeacherSubject || document.getElementById("logoutSubject").value,
+                "student": loggedInTeacherSubject || document.getElementById("logoutSubject").value,
+                "date": dateStr,
+                "time": timeStr,
+                "class": "تسجيل خروج",
+                "reason": "تسجيل خروج مباشر",
+                "type": "TeacherLogout"
+            }];
+
+            try {
+                if (TEACHER_LOGOUT_URL === "أضف_رابط_سكربت_تسجيل_الخروج_هنا") {
+                    console.warn("تنبيه: لم يتم وضع رابط جوجل شيت للخروج، سيتم استخدام رابط معلومات المعلم القديم كإجراء احتياطي");
+                    fetch(TEACHER_INFO_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                } else {
+                    fetch(TEACHER_LOGOUT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                }
+
+                setTimeout(() => {
+                    localStorage.removeItem("teacherInfo");
+                    localStorage.removeItem("userDeviceType");
+                    location.reload();
+                }, 500);
+            } catch (e) {
+                document.getElementById("loader").style.display = "none";
+                alert("خطأ في الاتصال");
+            }
+        }
+
+        function toggleMenu() {
+            const isChecked = document.getElementById("checkbox").checked;
+            if (isChecked) {
+                if (!loggedInTeacherName) {
+                    alert("لاستخدام المميزات قم بتسجيل الدخول");
+                    document.getElementById("checkbox").checked = false;
+                    return;
+                }
+                document.getElementById("sideMenu").classList.add("open");
+                if (document.getElementById("chatWidget")) {
+                    document.getElementById("chatWidget").style.display = "none";
+                }
+            }
+            else { 
+                document.getElementById("sideMenu").classList.remove("open"); 
+                if (document.getElementById("chatWidget")) {
+                    document.getElementById("chatWidget").style.display = "block";
+                }
+            }
+        }
+
+        function forceCloseMenu() {
+            document.getElementById("checkbox").checked = false;
+            document.getElementById("sideMenu").classList.remove("open");
+            if (document.getElementById("chatWidget")) {
+                document.getElementById("chatWidget").style.display = "block";
+            }
+        }
+
+        // إغلاق القائمة بشكل تلقائي عند النقر خارجها
+        document.addEventListener('click', function (event) {
+            const sideMenu = document.getElementById("sideMenu");
+            const menuContainer = document.querySelector(".menu-container");
+            const isMenuOpen = sideMenu.classList.contains("open");
+
+            // التحقق مما إذا كانت القائمة مفتوحة، والنقرة لم تحدث بداخل القائمة أو زر فتحها
+            if (isMenuOpen && !sideMenu.contains(event.target) && !menuContainer.contains(event.target)) {
+                forceCloseMenu();
+            }
+        });
+
+        function openAboutModal() { document.getElementById("aboutOverlay").style.display = "flex"; forceCloseMenu(); }
+        function openResetModal() { document.getElementById("resetOverlay").style.display = "flex"; forceCloseMenu(); }
+        function closeResetModal() { document.getElementById("resetOverlay").style.display = "none"; }
+        function openUnlockModal(label) { pendingClassLabel = label; document.getElementById("unlockText").textContent = `فتح قفل فصل ${label}`; document.getElementById("unlockOverlay").style.display = "flex"; }
+        function closeUnlockModal() { document.getElementById("unlockOverlay").style.display = "none"; }
+
+        function openTeacherAbsenceRecord() {
+            forceCloseMenu();
+            const absenceList = JSON.parse(localStorage.getItem("currentSessionAbsence") || "[]");
+            const container = document.getElementById("currentAbsenceList");
+            container.innerHTML = "";
+
+            if (absenceList.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#94a3b8;'>لا يوجد غياب مسجل للتو. إذا قمت بتسجيل غياب فصل جديد سيظهر هنا.</p>";
+            } else {
+                absenceList.forEach((record, index) => {
+                    const itemDiv = document.createElement("div");
+                    itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #e2e8f0;";
+
+                    const infoSpan = document.createElement("span");
+                    infoSpan.innerHTML = `<strong>${record['اسم الطالب']}</strong><br><small style="color: #64748b;">${record['الصف']} - ${record['الحصة']}</small>`;
+
+                    const delBtn = document.createElement("button");
+                    delBtn.textContent = "حذف لأنه حضر ❌";
+                    delBtn.style.cssText = "background: #fee2e2; color: #ef4444; border: none; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;";
+                    delBtn.onmouseover = () => delBtn.style.background = "#fcd3d3";
+                    delBtn.onmouseout = () => delBtn.style.background = "#fee2e2";
+                    delBtn.onclick = () => deleteStudentAbsence(index, record);
+
+                    itemDiv.appendChild(infoSpan);
+                    itemDiv.appendChild(delBtn);
+                    container.appendChild(itemDiv);
+                });
+            }
+            document.getElementById("teacherAbsenceOverlay").style.display = "flex";
+        }
+
+        function deleteStudentAbsence(index, record) {
+            if (confirm(`هل أنت متأكد أن الطالب ${record['اسم الطالب']} قد حضر وتريد حذف تسجيل الغياب الخاص به؟`)) {
+                // إظهار اللودر
+                document.getElementById("loader").style.display = "flex";
+                const loaderText = document.querySelector("#loader p");
+                if (loaderText) loaderText.textContent = "جارِ الحذف من السجل طيراناً...";
+
+                const payload = { action: 'deleteRowMatch', rowData: record };
+
+                fetch(ABSENCE_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).then(() => {
+                    let absenceList = JSON.parse(localStorage.getItem("currentSessionAbsence") || "[]");
+                    absenceList.splice(index, 1);
+                    localStorage.setItem("currentSessionAbsence", JSON.stringify(absenceList));
+
+                    setTimeout(() => {
+                        document.getElementById("loader").style.display = "none";
+                        if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                        alert("✅ تم حذف الطالب من سجل الغياب بنجاح، لن يحتسب غائباً.");
+                        openTeacherAbsenceRecord(); // تحديث الشاشة
+                    }, 1000);
+                }).catch(e => {
+                    document.getElementById("loader").style.display = "none";
+                    if (loaderText) loaderText.textContent = "جاري حفظ البيانات طيراناً...";
+                    alert("❌ خطأ في الاتصال");
+                });
+            }
+        }
+
+        function setupCodeNavigation(containerId, onComplete) {
+            const inputs = document.querySelectorAll(`#${containerId} input`);
+            inputs.forEach((input, index) => {
+                input.addEventListener("input", () => {
+                    if (input.value && index < 3) inputs[index + 1].focus();
+                    const code = Array.from(inputs).map(i => i.value).join("");
+                    if (code.length === 4 && onComplete) onComplete(code);
+                });
+                input.addEventListener("keydown", (e) => { if (e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus(); });
+            });
+        }
+
+        // --- الدخول السري للمدير للإحصائيات بطريقتين ---
+        // الطريقة الأولى: النقر المتعدد على جملة "نظام الغياب الذكي" (في شاشة تسجيل الدخول فقط)
+        let clickCount = 0;
+        let letClickTimeout;
+        document.getElementById("systemTitle").addEventListener("click", () => {
+            clickCount++;
+            clearTimeout(letClickTimeout);
+            if (clickCount >= 5) {
+                clickCount = 0;
+                verifyAdminAndShowStats();
+            }
+            letClickTimeout = setTimeout(() => { clickCount = 0; }, 2000);
+        });
+
+        // الطريقة الثانية: النقر على الزاوية السفلية اليسرى من الشاشة (في أي وقت وأي شاشة)
+        let hiddenBtnClickCount = 0;
+        let hiddenBtnTimeout;
+        document.getElementById("hiddenStatsBtn").addEventListener("click", () => {
+            hiddenBtnClickCount++;
+            clearTimeout(hiddenBtnTimeout);
+            // نطلب فقط 3 نقرات متتالية للزاوية لأنها مخفية تماماً
+            if (hiddenBtnClickCount >= 3) {
+                hiddenBtnClickCount = 0;
+                verifyAdminAndShowStats();
+            }
+            hiddenBtnTimeout = setTimeout(() => { hiddenBtnClickCount = 0; }, 2000);
+        });
+
+        // دالة موحدة للتحقق من رمز المدير بإظهار النافذة المنبثقة
+        function verifyAdminAndShowStats() {
+            document.getElementById("adminAuthOverlay").style.display = "flex";
+            // تحديد المربع الأول وتفريغ باقي المربعات
+            const inputs = document.querySelectorAll("#adminCodeInputs input");
+            inputs.forEach(i => i.value = "");
+            inputs[0].focus();
+        }
+
+        // إعداد مربعات رمز المدير
+        setupCodeNavigation("adminCodeInputs", (code) => {
+            if (code === "5500") {
+                // إخفاء نافذة التحقق
+                document.getElementById("adminAuthOverlay").style.display = "none";
+
+                // إخفاء أي شاشات أخرى مفتوحة
+                document.getElementById("login").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "none";
+                document.getElementById("setup").style.display = "none";
+                document.getElementById("logoutSetup").style.display = "none";
+                document.getElementById("welcome").style.display = "none";
+                document.getElementById("submenu").style.display = "none";
+                document.getElementById("teacherInfoSetup").style.display = "none";
+
+                // إظهار الإحصائيات
+                showStatistics();
+            } else {
+                alert("رمز المشرف غير صحيح");
+                const inputs = document.querySelectorAll("#adminCodeInputs input");
+                inputs.forEach(i => i.value = "");
+                inputs[0].focus();
+            }
+        });
+
+
+
+        setupCodeNavigation("resetCodeInputs");
+        setupCodeNavigation("unlockCodeInputs");
+
+        // --- تأثير الجسيمات (الكرات) التفاعلية مع الماوس عبر Canvas ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray;
+        // معلومات الماوس
+        let mouse = {
+            x: null,
+            y: null,
+            radius: (canvas.height / 120) * (canvas.width / 120) // مساحة التفاعل
+        }
+
+        window.addEventListener('mousemove', function (event) {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        // إنشاء كائن الجسيم الثابت
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            // دالة رسم الجسيم
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#4f46e5';
+                ctx.fill();
+            }
+            // التحقق من مكان الجسيم، حركة الماوس وتحديث الموقع
+            update() {
+                // ارتداد الكرات من أطراف الشاشة
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+
+                // التفاعل مع الماوس
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius + this.size) {
+                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 10;
+                    if (mouse.x > this.x && this.x > this.size * 10) this.x -= 10;
+                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 10;
+                    if (mouse.y > this.y && this.y > this.size * 10) this.y -= 10;
+                }
+
+                // تحريك الكرات
+                this.x += this.directionX;
+                this.y += this.directionY;
+
+                // الرسم بعد التحديث
+                this.draw();
+            }
+        }
+
+        // إنشاء شبكة الجسيمات
+        function initCanvas() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 11000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 5) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 5) - 2.5;
+                let directionY = (Math.random() * 5) - 2.5;
+                let color = '#4f46e5'; // لونه يعتمد على كود CSS --primary
+
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        // رسم الخطوط بين الجسيمات القريبة من بعضها
+        function connect() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) +
+                        ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                        opacityValue = 1 - (distance / 20000);
+                        let themeColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim() || '#7c3aed';
+                        // تحويل HEX الظاهري إلى شكل يقبل الشفافية
+                        ctx.strokeStyle = `rgba(130, 130, 130, ${opacityValue - 0.5})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // حلقة التحديث المستمر للرسوم
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connect();
+        }
+
+        // تعديل حجم الكانفاس عند تغيير حجم النافذة
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            mouse.radius = ((canvas.height / 120) * (canvas.width / 120));
+            initCanvas();
+        });
+
+        // إفراغ حركة الماوس عند خروجه
+        window.addEventListener('mouseout', () => {
+            mouse.x = undefined;
+            mouse.y = undefined;
+        });
+
+        // تشغيل الكانفاس
+        initCanvas();
+        animate();
+
+        // --- حفظ بيانات المعلم ---
+        document.getElementById("saveTeacherInfoBtn").onclick = async () => {
+            const name = document.getElementById("teacherFullName").value.trim();
+            const subject = document.getElementById("teacherSubject").value;
+
+            if (name.split(' ').length < 2) {
+                return alert("الرجاء إدخال الاسم الثلاثي (أو الثنائي على الأقل).");
+            }
+            if (!subject) {
+                return alert("الرجاء اختيار المادة.");
+            }
+
+            document.getElementById("loader").style.display = "flex";
+            const dateObj = new Date();
+            const dateStr = dateObj.toLocaleDateString("ar-EG");
+            const timeStr = dateObj.toLocaleTimeString("ar-EG");
+
+            // نرسل كافة البيانات المطلوبة لجوجل شيت: الإيميل، الباسورد، الرابط، الاسم، المادة، التاريخ، والوقت
+            const payload = [{
+                "email": loggedInEmail,
+                "password": loggedInPassword,
+                "link": window.location.href, // لإرسال الرابط في حال كان هو المقصود
+                "name": name,
+                "teacher": name, // محتفظ بها للتوافق مع الإصدار السابق
+                "subject": subject,
+                "student": subject, // محتفظ بها للتوافق
+                "date": dateStr,
+                "time": timeStr,
+                "class": "تسجيل دخول",
+                "type": "TeacherLogin"
+            }];
+
+            try {
+                // إرسال البيانات لجوجل شيت المنفصل الخاص بالمعلمين
+                // ملاحظة: بما أن وضع الإرسال هو no-cors، لن نستطيع التقاط أخطاء الخادم، سنفترض النجاح
+                fetch(TEACHER_INFO_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+
+                // حفظ البيانات في المتصفح ليتم تذكرها في المرات القادمة
+                localStorage.setItem("teacherInfo", JSON.stringify({ name: name, subject: subject, email: loggedInEmail, password: loggedInPassword }));
+
+                // حفظ في السجل الشامل للمعلمين المسجلين
+                let allTeachers = JSON.parse(localStorage.getItem("allTeachers") || "{}");
+                allTeachers[loggedInEmail + "|" + loggedInPassword] = { name: name, subject: subject, email: loggedInEmail, password: loggedInPassword };
+                localStorage.setItem("allTeachers", JSON.stringify(allTeachers));
+
+                // حفظ الاسم في المتغير العالمي واستكمال العملية
+                loggedInTeacherName = name;
+                loggedInTeacherSubject = subject;
+
+                document.getElementById("teacherInfoSetup").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "block";
+                checkCompleteDataStatus();
+                document.getElementById("returningWelcomeMsg").textContent = "مرحباً أ/ " + loggedInTeacherName;
+                document.getElementById("welcomeMsg").textContent = "إعدادات الحصة";
+
+                // إخفاء خيار اختيار المادة لأنها محفوظة مسبقاً من شاشة الإعدادات اللاحقة
+                document.getElementById("subjectLabel").style.display = "none";
+                document.getElementById("dropdown1").style.display = "none";
+                document.getElementById("dropdown1").value = loggedInTeacherSubject;
+
+            } catch (e) {
+                console.error(e);
+                alert("حدث خطأ أثناء حفظ بياناتك، ولكن سيتم إكمالك للنظام.");
+
+                // نحفظها محلياً حتى لو فشل الاتصال بالإنترنت
+                localStorage.setItem("teacherInfo", JSON.stringify({ name: name, subject: subject, email: loggedInEmail, password: loggedInPassword }));
+                
+                let allTeachers = JSON.parse(localStorage.getItem("allTeachers") || "{}");
+                allTeachers[loggedInEmail + "|" + loggedInPassword] = { name: name, subject: subject, email: loggedInEmail, password: loggedInPassword };
+                localStorage.setItem("allTeachers", JSON.stringify(allTeachers));
+
+                loggedInTeacherName = name;
+                loggedInTeacherSubject = subject;
+
+                document.getElementById("teacherInfoSetup").style.display = "none";
+                document.getElementById("returningTeacherWelcome").style.display = "block";
+                checkCompleteDataStatus();
+                document.getElementById("returningWelcomeMsg").textContent = "مرحباً أ/ " + loggedInTeacherName;
+                document.getElementById("welcomeMsg").textContent = "إعدادات الحصة";
+
+                // إخفاء خيار المادة
+                document.getElementById("subjectLabel").style.display = "none";
+                document.getElementById("dropdown1").style.display = "none";
+                document.getElementById("dropdown1").value = loggedInTeacherSubject;
+            } finally {
+                document.getElementById("loader").style.display = "none";
+            }
+        };
+
+        function showStatistics() {
+            document.getElementById("login").style.display = "none";
+            document.getElementById("statsDashboard").style.display = "block";
+            const history = JSON.parse(localStorage.getItem("globalAbsenceHistory") || "[]");
+            document.getElementById("totalAbsents").textContent = history.length;
+            const classFreq = {};
+            history.forEach(h => classFreq[h.class] = (classFreq[h.class] || 0) + 1);
+            const sortedClasses = Object.entries(classFreq).sort((a, b) => b[1] - a[1]);
+            document.getElementById("highestClass").textContent = sortedClasses[0] ? sortedClasses[0][0] : "لا يوجد";
+            const levelDiv = document.getElementById("levelAnalysis");
+            levelDiv.innerHTML = "<h3>📊 إحصائيات المراحل (العدد والنسبة)</h3>";
+            levels.forEach(lvl => {
+                const absents = history.filter(h => h.class.includes(lvl.name)).length;
+                const percentage = ((absents / lvl.capacity) * 100).toFixed(1);
+                levelDiv.innerHTML += `
+              <div style="margin-bottom:20px;">
+                  <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                      <span>مرحلة ${lvl.name}</span>
+                      <span>${absents} غائب (${percentage}%)</span>
+                  </div>
+                  <div class="progress-container"><div class="progress-bar" style="width:${percentage}%"></div></div>
+              </div>`;
+            });
+            const studentFreq = {};
+            history.forEach(h => { const key = `${h.student} - ${h.class}`; studentFreq[key] = (studentFreq[key] || 0) + 1; });
+            const rankTable = document.getElementById("studentRankTable");
+            rankTable.innerHTML = Object.entries(studentFreq).sort((a, b) => b[1] - a[1]).slice(0, 10)
+                .map(([data, count]) => `<tr><td>${data.split(' - ')[0]}</td><td>${data.split(' - ')[1]}</td><td class="top-absent">${count}</td></tr>`).join("");
+        }
+
+        document.getElementById("startBtn").onclick = async () => {
+            document.getElementById("setup").style.display = "none";
+            const welcomeEl = document.getElementById("welcome");
+            welcomeEl.style.display = "block";
+            if (document.getElementById("chatWidget")) {
+                document.getElementById("chatWidget").style.display = "none";
+            }
+            welcomeEl.classList.remove("smooth-appear");
+            void welcomeEl.offsetWidth;
+            welcomeEl.classList.add("smooth-appear");
+            const main = document.getElementById("main");
+            
+            // إظهار رسالة تحميل أثناء جلب الفصول المخصصة للمعلم
+            main.innerHTML = "<div style='width: 100%; text-align: center; color: var(--primary); font-weight: bold; padding: 20px;'>جاري تحميل الفصول...</div>";
+            
+            let assignedClasses = null;
+            if (typeof isFirebaseInitialized !== "undefined" && isFirebaseInitialized) {
+                try {
+                    const snapshot = await firebase.database().ref("assignedClasses/" + loggedInTeacherName).once("value");
+                    if (snapshot.exists()) {
+                        const val = snapshot.val();
+                        if (Array.isArray(val) && val.length > 0) {
+                            assignedClasses = val;
+                        }
+                    }
+                } catch (e) {
+                    console.error("تعذر جلب الفصول المخصصة للمعلم", e);
+                }
+            }
+
+            main.innerHTML = "";
+            const completedClasses = JSON.parse(localStorage.getItem("completedClasses") || "[]");
+            levels.forEach(level => {
+                for (let i = 1; i <= level.count; i++) {
+                    const label = `${level.name} ${i}`;
+                    
+                    // التصفية: عرض الفصل فقط إذا كان مخصصاً للمعلم (أو عرض كل الفصول إذا لم يخصص له شيء)
+                    if (assignedClasses && !assignedClasses.includes(label)) {
+                        continue;
+                    }
+                    
+                    const div = document.createElement("div"); div.className = "card";
+                    if (completedClasses.includes(label)) {
+                        div.classList.add("completed"); div.textContent = label;
+                        div.onclick = () => openUnlockModal(label);
+                    } else {
+                        div.textContent = label; div.onclick = () => openAbsenceSheet(label);
+                    }
+                    main.appendChild(div);
+                }
+            });
+            
+            if (main.innerHTML === "") {
+                main.innerHTML = "<div style='width: 100%; text-align: center; color: var(--danger); font-weight: bold; padding: 20px;'>لا يوجد فصول معينة لك حالياً، تواصل مع الإدارة.</div>";
+            }
+        };
+
+        function openAbsenceSheet(label) {
+            currentLabel = label;
+            document.getElementById("classTitle").textContent = "طلاب فصل " + label;
+            
+            const absentCounter = document.getElementById("absentCounter");
+            if(absentCounter) absentCounter.textContent = "الغائبين : 0";
+            let currentAbsents = 0;
+            
+            document.getElementById("welcome").style.display = "none";
+            const submenu = document.getElementById("submenu");
+            submenu.style.display = "block";
+            submenu.classList.remove("smooth-appear");
+            void submenu.offsetWidth;
+            submenu.classList.add("smooth-appear");
+            const subGrid = document.getElementById("subGrid"); subGrid.innerHTML = "";
+            for (let i = 1; i <= 35; i++) {
+                const div = document.createElement("div"); div.className = "card"; div.textContent = "طالب " + i;
+                div.onclick = () => {
+                    div.classList.toggle("selected");
+                    if (div.classList.contains("selected")) {
+                        currentAbsents++;
+                    } else {
+                        currentAbsents--;
+                    }
+                    if(absentCounter) absentCounter.textContent = "الغائبين : " + currentAbsents;
+                };
+                subGrid.appendChild(div);
+            }
+        }
+
+        document.getElementById("saveBtn").onclick = async () => {
+            const sel = document.querySelectorAll(".selected");
+            if (!sel.length) return alert("اختر الغائبين!");
+
+            // إظهار اللودر ذو الرسوم المتحركة
+            document.getElementById("loader").style.display = "flex";
+
+            const dateObj = new Date();
+            const dateStr = dateObj.toLocaleDateString("ar-EG");
+            const timeStr = dateObj.toLocaleTimeString("ar-EG");
+
+            // استخراج القيم من عناصر النظام
+            const subjectVal = document.getElementById("dropdown1") ? document.getElementById("dropdown1").value : loggedInTeacherSubject;
+            const periodVal = document.getElementById("dropdown2") ? document.getElementById("dropdown2").value : "غير محدد";
+
+            const payload = Array.from(sel).map(item => ({
+                "التاريخ": dateStr,
+                "الوقت": timeStr,
+                "الحصة": periodVal,
+                "القسم / المادة": subjectVal,
+                "الصف": currentLabel,
+                "اسم الطالب": item.textContent,
+                "حالة الغياب": "غائب",
+                "المعلم المراقب": loggedInTeacherName
+            }));
+
+            let history = JSON.parse(localStorage.getItem("globalAbsenceHistory") || "[]");
+            localStorage.setItem("globalAbsenceHistory", JSON.stringify([...history, ...payload]));
+
+            // تحديث سجل غياب المعلم الحالي للاستعراض والتعديل اللاحق
+            localStorage.setItem("currentSessionAbsence", JSON.stringify(payload));
+
+            try {
+                // نرسل الطلب لجوجل شيت بدون انتظار الإجابة الفورية (no-cors)
+                fetch(ABSENCE_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+
+                let completed = JSON.parse(localStorage.getItem("completedClasses") || "[]");
+                if (!completed.includes(currentLabel)) {
+                    completed.push(currentLabel);
+                    localStorage.setItem("completedClasses", JSON.stringify(completed));
+                }
+
+                // إعطاء فرصة 2.5 ثواني للطلب للوصول للخادم، وللمستخدم ليقرأ الإشعار ويستمتع بالرسوم المتحركة
+                setTimeout(() => {
+                    document.getElementById("loader").style.display = "none";
+                    alert("✅ شكرًا على تسجيل الغياب أتمنى لك يومًا سعيدًا");
+                    location.reload();
+                }, 2500);
+            } catch (e) {
+                document.getElementById("loader").style.display = "none";
+                alert("خطأ في الاتصال");
+            }
+        };
+
+        document.getElementById("backBtn").onclick = () => { 
+            document.getElementById("submenu").style.display = "none"; 
+            document.getElementById("welcome").style.display = "block"; 
+        };
+
+        function confirmUnlock() {
+            const code = Array.from(document.querySelectorAll("#unlockCodeInputs input")).map(i => i.value).join("");
+            if (code === "2012") {
+                let completed = JSON.parse(localStorage.getItem("completedClasses") || "[]");
+                const index = completed.indexOf(pendingClassLabel);
+                if (index > -1) completed.splice(index, 1);
+                localStorage.setItem("completedClasses", JSON.stringify(completed));
+                alert("✅ تم فك القفل."); closeUnlockModal(); openAbsenceSheet(pendingClassLabel);
+            } else { alert("❌ خطأ"); }
+        }
+
+        function confirmReset() {
+            const code = Array.from(document.querySelectorAll("#resetCodeInputs input")).map(i => i.value).join("");
+            if (code === "0000") { 
+                localStorage.removeItem("completedClasses"); 
+                localStorage.removeItem("currentSessionAbsence"); 
+                location.reload(); 
+            } else { 
+                alert("❌ خطأ"); 
+            }
+        }
+
+        // === نظام الدردشة باستخدام Firebase ===
+        
+        // --- إعدادات Firebase (ضع بيانات مشروعك الحقيقية هنا) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDhWSokVjK2e31wMmM6sPWvRp8DrtZSc0",
+            authDomain: "submit-e8c66.firebaseapp.com",
+            databaseURL: "https://submit-e8c66-default-rtdb.firebaseio.com",
+            projectId: "submit-e8c66",
+            storageBucket: "submit-e8c66.firebasestorage.app",
+            messagingSenderId: "193644814442",
+            appId: "1:193644814442:web:056e97d9dcac8c2f25aa13",
+            measurementId: "G-MQ4Q8GH56Q"
+        };
+
+        let isFirebaseInitialized = false;
+        let currentMessagesRef = null;
+        
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                isFirebaseInitialized = true;
+                setTimeout(listenToMessages, 1000); // ننتظر قليلاً ليتم تحديد اسم المعلم
+            } else {
+                console.warn("تنبيه: لم يتم تكوين إعدادات Firebase بعد. الدردشة ستعمل بشكل تجريبي (محلي) فقط.");
+            }
+        } catch (e) {
+            console.error("خطأ في تشغيل Firebase:", e);
+        }
+
+        let isChatOpen = false;
+        let unreadCount = 0;
+
+        function toggleChat() {
+            if (!loggedInTeacherName) {
+                alert("الرجاء تسجيل الدخول أولاً لتتمكن من استخدام الدردشة.");
+                return;
+            }
+            const body = document.getElementById("chatBody");
+            isChatOpen = !isChatOpen;
+            body.style.display = isChatOpen ? "flex" : "none";
+            if (isChatOpen) {
+                unreadCount = 0;
+                document.getElementById("unreadBadge").style.display = "none";
+                scrollToChatBottom();
+            }
+        }
+
+        window.handleChatKeyPress = function(event) {
+            if (event.key === "Enter") {
+                sendChatMessage();
+            }
+        };
+
+        window.sendChatMessage = function() {
+            const input = document.getElementById("chatInput");
+            const text = input.value.trim();
+            if (!text) return;
+            
+            // استخدام loggedInTeacherName مباشرة (لأنها معرفة بـ let ولا ترتبط بـ window)
+            const senderName = loggedInTeacherName || "معلم (غير مسجل)";
+            const chatPath = "messages/" + senderName;
+
+            if (isFirebaseInitialized) {
+                firebase.database().ref(chatPath).push({
+                    text: text,
+                    sender: senderName,
+                    role: "teacher",
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } else {
+                appendMessageToUI("local_" + Date.now(), { text: text, sender: senderName, role: "teacher" });
+            }
+            
+            input.value = "";
+        };
+
+        let lastListenedTeacher = null;
+        let renderedMessages = {};
+
+        function listenToMessages() {
+            if (!isFirebaseInitialized) return;
+            const senderName = loggedInTeacherName || "معلم (غير مسجل)";
+            
+            if (lastListenedTeacher === senderName) return; // لا نكرر الاستماع لنفس المعلم
+            
+            if (currentMessagesRef) {
+                currentMessagesRef.off();
+                document.getElementById("chatMessages").innerHTML = '<div style="text-align:center; color:#94a3b8; font-size:12px; margin-top:20px;">تم تحميل بيانات الدردشة بشكل آمن ومستقل.</div>';
+                renderedMessages = {};
+            }
+            
+            lastListenedTeacher = senderName;
+            currentMessagesRef = firebase.database().ref("messages/" + senderName);
+            
+            currentMessagesRef.on("child_added", (snapshot) => {
+                const msgId = snapshot.key;
+                const msg = snapshot.val();
+                if (!renderedMessages[msgId]) {
+                    renderedMessages[msgId] = msg;
+                    appendMessageToUI(msgId, msg);
+                    
+                    if (!isChatOpen && msg && msg.role === "admin") {
+                        unreadCount++;
+                        const badge = document.getElementById("unreadBadge");
+                        badge.textContent = unreadCount;
+                        badge.style.display = "inline-block";
+                    }
+                }
+            });
+
+            currentMessagesRef.on("child_changed", (snapshot) => {
+                const msgId = snapshot.key;
+                const msg = snapshot.val();
+                if (renderedMessages[msgId]) {
+                    renderedMessages[msgId] = msg;
+                    updateMessageInUI(msgId, msg);
+                }
+            });
+
+            currentMessagesRef.on("child_removed", (snapshot) => {
+                const msgId = snapshot.key;
+                if (renderedMessages[msgId]) {
+                    delete renderedMessages[msgId];
+                    const msgDiv = document.getElementById("msg-" + msgId);
+                    if (msgDiv) msgDiv.remove();
+                }
+            });
+        }
+        
+        // التحقق دورياً لتحديث الدردشة إذا تغير اسم المعلم المسجل
+        setInterval(() => {
+            if (loggedInTeacherName && lastListenedTeacher !== loggedInTeacherName && isFirebaseInitialized) {
+                listenToMessages();
+            }
+        }, 1500);
+
+        function updateMessageInUI(msgId, msg) {
+            const msgDiv = document.getElementById("msg-" + msgId);
+            if (!msgDiv) return;
+            
+            const textDiv = msgDiv.querySelector(".msg-text-content");
+            if (textDiv) {
+                textDiv.textContent = msg.text;
+                if (msg.edited && !textDiv.querySelector(".msg-edited-badge")) {
+                    const editedSpan = document.createElement("span");
+                    editedSpan.className = "msg-edited-badge";
+                    editedSpan.style.fontSize = "10px";
+                    editedSpan.style.opacity = "0.7";
+                    editedSpan.style.marginRight = "5px";
+                    editedSpan.textContent = "(تم التعديل)";
+                    textDiv.appendChild(editedSpan);
+                }
+            }
+        }
+
+        window.editChatMessage = function(msgId, oldText) {
+            const newText = prompt("تعديل الرسالة:", oldText);
+            if (newText !== null && newText.trim() !== "" && newText !== oldText) {
+                const senderName = loggedInTeacherName || "معلم (غير مسجل)";
+                firebase.database().ref("messages/" + senderName + "/" + msgId).update({
+                    text: newText.trim(),
+                    edited: true
+                });
+            }
+        };
+
+        window.deleteChatMessage = function(msgId) {
+            if (confirm("هل أنت متأكد من مسح هذه الرسالة؟")) {
+                const senderName = loggedInTeacherName || "معلم (غير مسجل)";
+                firebase.database().ref("messages/" + senderName + "/" + msgId).remove();
+            }
+        };
+
+        window.forwardChatMessage = function(text) {
+            const input = document.getElementById("chatInput");
+            input.value = text;
+            input.focus();
+        };
+
+        function appendMessageToUI(msgId, msg) {
+            if (!msg || !msg.text) return; // نتجاهل الرسائل غير المكتملة أو undefined
+
+            const container = document.getElementById("chatMessages");
+            
+            if(container.innerHTML.includes("الرجاء إعداد روابط") || container.innerHTML.includes("للرد والإرسال") || container.innerHTML.includes("تم تحميل بيانات الدردشة")) {
+                container.innerHTML = "";
+            }
+
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "chat-message";
+            msgDiv.id = "msg-" + msgId;
+            
+            const currentSender = loggedInTeacherName || "معلم (غير مسجل)";
+            const isMine = (msg.sender === currentSender && msg.role === "teacher");
+            
+            msgDiv.classList.add(isMine ? "msg-mine" : "msg-other");
+            
+            const senderSpan = document.createElement("div");
+            senderSpan.className = "msg-sender";
+            senderSpan.textContent = msg.sender + (msg.role === "admin" ? " (الإدارة)" : "");
+            
+            const textSpan = document.createElement("div");
+            textSpan.className = "msg-text-content";
+            textSpan.textContent = msg.text;
+            if (msg.edited) {
+                const editedSpan = document.createElement("span");
+                editedSpan.className = "msg-edited-badge";
+                editedSpan.style.fontSize = "10px";
+                editedSpan.style.opacity = "0.7";
+                editedSpan.style.marginRight = "5px";
+                editedSpan.textContent = "(تم التعديل)";
+                textSpan.appendChild(editedSpan);
+            }
+            
+            msgDiv.appendChild(senderSpan);
+            msgDiv.appendChild(textSpan);
+            
+            // أزرار التحكم
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "chat-msg-actions";
+            actionsDiv.style.marginTop = "5px";
+            actionsDiv.style.display = "flex";
+            actionsDiv.style.gap = "10px";
+            actionsDiv.style.fontSize = "11px";
+
+            // زر إعادة توجيه (للكل)
+            const forwardBtn = document.createElement("span");
+            forwardBtn.textContent = "♻ اقتباس";
+            forwardBtn.style.cursor = "pointer";
+            forwardBtn.style.opacity = "0.8";
+            forwardBtn.onclick = () => forwardChatMessage(msg.text);
+            actionsDiv.appendChild(forwardBtn);
+
+            // أزرار التعديل والحذف فقط للرسائل التي يرسلها المعلم
+            if (isMine) {
+                const editBtn = document.createElement("span");
+                editBtn.textContent = "✏ تعديل";
+                editBtn.style.cursor = "pointer";
+                editBtn.style.opacity = "0.8";
+                editBtn.onclick = () => editChatMessage(msgId, msg.text);
+                
+                const deleteBtn = document.createElement("span");
+                deleteBtn.textContent = "🗑 مسح";
+                deleteBtn.style.cursor = "pointer";
+                deleteBtn.style.opacity = "0.8";
+                deleteBtn.onclick = () => deleteChatMessage(msgId);
+
+                actionsDiv.appendChild(editBtn);
+                actionsDiv.appendChild(deleteBtn);
+            }
+
+            msgDiv.appendChild(actionsDiv);
+            
+            container.appendChild(msgDiv);
+            scrollToChatBottom();
+        }
+
+        function scrollToChatBottom() {
+            const container = document.getElementById("chatMessages");
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+
+    <!-- شريط الحقوق السفلي -->
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; height: 40px; font-family: inherit; background: linear-gradient(135deg, var(--primary, #4f46e5), var(--secondary, #7c3aed)); color: white; display: flex; justify-content: center; align-items: center; z-index: 9990; font-size: 15px; font-weight: bold; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);">
+        برمجة الطالب يحيى حميد | جميع الحقوق محفوظة &copy;
+    </div>
+
+    <!-- PWA Install Logic -->
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installPwaBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // منع Chrome 67 أو ما قبله من إظهار المطالبة تلقائياً
+            e.preventDefault();
+            // حفظ الحدث لاستخدامه لاحقاً
+            deferredPrompt = e;
+            // إظهار زر التثبيت
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // إظهار المطالبة بالتثبيت
+                deferredPrompt.prompt();
+                // انتظار استجابة المستخدم
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the A2HS prompt');
+                    installBtn.style.display = 'none';
+                } else {
+                    console.log('User dismissed the A2HS prompt');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            // إخفاء الزر بعد التثبيت
+            installBtn.style.display = 'none';
+            console.log('a2hs installed');
+        });
+    </script>
+
+    <!-- تسجيل Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>
